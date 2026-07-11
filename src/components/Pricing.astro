@@ -35,7 +35,7 @@ const tiers = ['starter', 'basic', 'pro', 'business'] as const;
             <span class="pricing-tokens">{t(lang, `pricing.${tier}.tokens`)}</span>
             <span class="pricing-usd">{t(lang, `pricing.${tier}.usd`)}</span>
             <span class="pricing-mmk">{t(lang, `pricing.${tier}.mmk`)}</span>
-            <a href="/auth/signin" class:list={['btn', 'btn--ghost', { 'btn': isPro }]} style="padding:0.5rem 1rem;font-size:0.625rem">
+            <a href={`/${lang}/auth/signin`} class:list={['btn', 'btn--ghost', { 'btn': isPro }]} style="padding:0.5rem 1rem;font-size:0.625rem">
               {t(lang, 'pricing.buy')}
             </a>
           </div>

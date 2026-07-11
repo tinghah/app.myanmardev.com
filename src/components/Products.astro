@@ -29,7 +29,7 @@ const { lang } = Astro.props;
           <span class="product-price-mmk">{t(lang, 'products.p1.mmk')}</span>
         </div>
         <div class="product-actions">
-          <a href="/auth/signin" class="btn" style="flex:1;justify-content:center">{t(lang, 'products.p1.order')}</a>
+          <a href={`/${lang}/auth/signin`} class="btn" style="flex:1;justify-content:center">{t(lang, 'products.p1.order')}</a>
           <button class="btn btn--ghost details-toggle" data-target="details-1" style="flex:1;justify-content:center">{t(lang, 'products.p1.info')}</button>
         </div>
         <div class="product-details" id="details-1">

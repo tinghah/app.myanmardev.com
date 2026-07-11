@@ -181,7 +181,22 @@ export default function AuthButton() {
   }
 
   return (
-    <>
+    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+      <button
+        onClick={handleSignInClick}
+        style={{ ...styles.signInBtn, background: 'transparent', color: 'var(--ink)', border: '1px solid var(--border)' }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.borderColor = 'var(--accent)';
+          e.currentTarget.style.color = 'var(--accent)';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.borderColor = 'var(--border)';
+          e.currentTarget.style.color = 'var(--ink)';
+        }}
+      >
+        Sign In
+      </button>
+
       <button
         onClick={handleSignInClick}
         style={styles.signInBtn}
@@ -194,7 +209,7 @@ export default function AuthButton() {
           e.currentTarget.style.boxShadow = 'none';
         }}
       >
-        Sign In
+        Sign Up
       </button>
 
       <SignInModal
@@ -203,6 +218,6 @@ export default function AuthButton() {
         onSignInGoogle={handleGoogleSignIn}
         onSignInGitHub={handleGitHubSignIn}
       />
-    </>
+    </div>
   );
 }
