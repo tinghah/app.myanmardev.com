@@ -2,6 +2,7 @@
 import AuthButton from './AuthButton';
 import TokenBalance from './TokenBalance';
 import ThemeToggle from './ThemeToggle.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
 import { t, type Language } from '../i18n/utils';
 
 interface Props {
@@ -26,6 +27,7 @@ const { lang } = Astro.props;
 
   <div class="controls">
     <TokenBalance client:load />
+    <LanguageSwitcher currentLang={lang} />
     <ThemeToggle />
     <AuthButton client:load />
     <button class="hamburger" id="hamburger-btn" aria-label={t(lang, 'nav.menu')} aria-expanded="false">
@@ -42,6 +44,7 @@ const { lang } = Astro.props;
     <a href="#products">{t(lang, 'nav.products')}</a>
     <a href="#pricing">{t(lang, 'nav.pricing')}</a>
     <div class="mobile-nav-controls">
+      <LanguageSwitcher currentLang={lang} />
       <ThemeToggle />
     </div>
   </nav>

@@ -1,11 +1,18 @@
 ---
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'my' } }
+  ];
+}
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import AuthProvider from '../../components/AuthProvider';
 import DashboardContent from '../../components/DashboardContent';
 import { t, type Language } from '../../i18n/utils';
-const lang: Language = 'en';
-const title = 'Dashboard — myanmardev.com';
+
+const { lang } = Astro.params as { lang: Language };
+const title = lang === 'my' ? 'Dashboard — myanmardev.com' : 'Dashboard — myanmardev.com';
 const description = 'Manage your tokens, view order history, and track your deployments.';
 ---
 

@@ -1,0 +1,56 @@
+---
+import { type Language } from '../i18n/utils';
+
+interface Props {
+  currentLang: Language;
+}
+
+const { currentLang } = Astro.props;
+const targetLang = currentLang === 'en' ? 'my' : 'en';
+const label = currentLang === 'en' ? 'မြန်မာ' : 'EN';
+---
+
+<a href="#" class="lang-switch" data-target-lang={targetLang} title={`Switch to ${targetLang}`}>
+  {label}
+</a>
+
+<style>
+  .lang-switch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 4px;
+    font-family: var(--display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+  .lang-switch:hover {
+    background: var(--rule);
+  }
+</style>
+
+<script>
+  const switchers = document.querySelectorAll('.lang-switch');
+  switchers.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetLang = (e.currentTarget as HTMLElement).getAttribute('data-target-lang');
+      if (targetLang) {
+        localStorage.setItem('lang', targetLang);
+        // Replace the current language in the path (e.g., /en/products -> /my/products)
+        const pathParts = window.location.pathname.split('/');
+        if (pathParts.length > 1 && (pathParts[1] === 'en' || pathParts[1] === 'my')) {
+          pathParts[1] = targetLang;
+          window.location.href = pathParts.join('/') + window.location.search + window.location.hash;
+        } else {
+          window.location.href = '/' + targetLang + '/';
+        }
+      }
+    });
+  });
+</script>

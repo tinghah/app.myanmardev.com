@@ -1,9 +1,15 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import { t } from '../../i18n/utils';
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'my' } }
+  ];
+}
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import { t, type Language } from '../../../i18n/utils';
 
-const lang = 'en';
+const { lang } = Astro.params as { lang: Language };
 ---
 
 <Layout title={`${t(lang, 'auth.signIn')} | myanmardev.com`} description="Sign in to myanmardev.com with Google or GitHub">
@@ -132,63 +138,66 @@ const lang = 'en';
   }
 </style>
 
-<script is:inline>
-  (function() {
-    var btnGoogle = document.getElementById('btn-google');
-    var btnGithub = document.getElementById('btn-github');
-    var errorDiv = document.getElementById('signin-error');
-    var errorText = document.getElementById('signin-error-text');
+<script>
+  import { getAuthInstance, getGoogleProvider, getGithubProvider } from '../../../lib/firebase';
+  import { createOrUpdateUserProfile } from '../../../lib/auth';
+  import { signInWithPopup } from 'firebase/auth';
 
-    function showError(msg) {
+  var btnGoogle = document.getElementById('btn-google') as HTMLButtonElement;
+  var btnGithub = document.getElementById('btn-github') as HTMLButtonElement;
+  var errorDiv = document.getElementById('signin-error');
+  var errorText = document.getElementById('signin-error-text');
+
+  function showError(msg: string) {
+    if (errorText && errorDiv) {
       errorText.textContent = msg;
       errorDiv.style.display = 'block';
     }
+  }
 
-    function hideError() {
+  function hideError() {
+    if (errorDiv) {
       errorDiv.style.display = 'none';
     }
+  }
 
-    async function handleSignIn(provider) {
-      hideError();
-      btnGoogle.disabled = true;
-      btnGithub.disabled = true;
+  async function handleSignIn(provider: string) {
+    hideError();
+    if (btnGoogle) btnGoogle.disabled = true;
+    if (btnGithub) btnGithub.disabled = true;
 
-      try {
-        var fb = await import('/src/lib/firebase.ts');
-        var authMod = await import('/src/lib/auth.ts');
-        var firebaseAuth = await import('firebase/auth');
+    try {
+      var auth = getAuthInstance();
+      var authProvider = provider === 'google'
+        ? getGoogleProvider()
+        : getGithubProvider();
 
-        var auth = fb.getAuthInstance();
-        var authProvider = provider === 'google'
-          ? fb.getGoogleProvider()
-          : fb.getGithubProvider();
+      var result = await signInWithPopup(auth, authProvider);
 
-        var result = await firebaseAuth.signInWithPopup(auth, authProvider);
-
-        if (result.user) {
-          await authMod.createOrUpdateUserProfile(result.user);
-          window.location.href = '/my';
-        }
-      } catch (err) {
-        console.error('Sign-in error:', err);
-        var msg = 'Sign-in failed. Please try again.';
-        if (err.code === 'auth/popup-closed-by-user') {
-          msg = 'Sign-in cancelled.';
-        } else if (err.code === 'auth/popup-blocked') {
-          msg = 'Popup blocked. Allow popups and retry.';
-        } else if (err.code === 'auth/network-request-failed') {
-          msg = 'Network error. Check connection.';
-        } else if (err.message) {
-          msg = err.message;
-        }
-        showError(msg);
-      } finally {
-        btnGoogle.disabled = false;
-        btnGithub.disabled = false;
+      if (result.user) {
+        await createOrUpdateUserProfile(result.user);
+        const lang = window.location.pathname.split('/')[1] || 'en';
+        window.location.href = `/${lang}/dashboard`;
       }
+    } catch (err: any) {
+      console.error('Sign-in error:', err);
+      var msg = 'Sign-in failed. Please try again.';
+      if (err.code === 'auth/popup-closed-by-user') {
+        msg = 'Sign-in cancelled.';
+      } else if (err.code === 'auth/popup-blocked') {
+        msg = 'Popup blocked. Allow popups and retry.';
+      } else if (err.code === 'auth/network-request-failed') {
+        msg = 'Network error. Check connection.';
+      } else if (err.message) {
+        msg = err.message;
+      }
+      showError(msg);
+    } finally {
+      if (btnGoogle) btnGoogle.disabled = false;
+      if (btnGithub) btnGithub.disabled = false;
     }
+  }
 
-    btnGoogle.addEventListener('click', function() { handleSignIn('google'); });
-    btnGithub.addEventListener('click', function() { handleSignIn('github'); });
-  })();
+  btnGoogle?.addEventListener('click', function() { handleSignIn('google'); });
+  btnGithub?.addEventListener('click', function() { handleSignIn('github'); });
 </script>
