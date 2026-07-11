@@ -27,7 +27,7 @@ const PLATFORMS: PlatformOption[] = [
   { value: 'custom', label: 'Custom CNAME', description: 'Enter any CNAME target', cnameTarget: '', placeholder: 'your-target.example.com' },
 ];
 
-const TOKEN_COST = 1; // Cost in tokens for subdomain registration
+const TOKEN_COST = 10;
 
 // ─── Step Indicator ─────────────────────────────────────
 
@@ -256,10 +256,12 @@ export default function SubdomainBuilder() {
         'subdomain',
         TOKEN_COST,
         {
-          subdomain: `${subdomain.trim().toLowerCase()}.${domain}`,
+          subdomain: subdomain.trim().toLowerCase(),
           domain,
           platform,
           sourceUrl: sourceUrl.trim(),
+          target: cnamePreview,
+          cloudflareRecordId: result.message.replace('Created DNS record ', ''),
         }
       );
 
