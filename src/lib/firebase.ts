@@ -20,6 +20,10 @@ let _githubProvider: GithubAuthProvider | null = null;
 
 function getApp(): FirebaseApp {
   if (!_app && typeof window !== 'undefined') {
+    if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes('undefined')) {
+      console.error('[Firebase] Config missing. Did you add PUBLIC_FIREBASE_* variables to GitHub Actions Variables?');
+      throw new Error('Firebase configuration is missing API key. Check GitHub Variables.');
+    }
     _app = initializeApp(firebaseConfig);
   }
   return _app as FirebaseApp;

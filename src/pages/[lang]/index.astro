@@ -10,6 +10,7 @@ import Header from '../../components/Header.astro';
 import Hero from '../../components/Hero.astro';
 import Products from '../../components/Products.astro';
 import Pricing from '../../components/Pricing.astro';
+import AuthProvider from '../../components/AuthProvider';
 import { t, type Language } from '../../i18n/utils';
 
 const { lang } = Astro.params as { lang: Language };
@@ -18,7 +19,9 @@ const description = lang === 'my' ? 'Coding မလို။ စောင့်�
 ---
 
 <Layout title={title} description={description} lang={lang}>
-  <Header lang={lang} />
+  <AuthProvider client:load>
+    <Header lang={lang} />
+  </AuthProvider>
   <Hero lang={lang} />
   <Products lang={lang} />
   <Pricing lang={lang} />

@@ -7,13 +7,16 @@ export function getStaticPaths() {
 }
 import Layout from '../../../layouts/Layout.astro';
 import Header from '../../../components/Header.astro';
+import AuthProvider from '../../../components/AuthProvider';
 import { t, type Language } from '../../../i18n/utils';
 
 const { lang } = Astro.params as { lang: Language };
 ---
 
 <Layout title={`${t(lang, 'auth.signIn')} | myanmardev.com`} description="Sign in to myanmardev.com with Google or GitHub">
-  <Header lang={lang} />
+  <AuthProvider client:load>
+    <Header lang={lang} />
+  </AuthProvider>
 
   <main class="signin-page">
     <div class="signin-card">
@@ -182,7 +185,9 @@ const { lang } = Astro.params as { lang: Language };
     } catch (err: any) {
       console.error('Sign-in error:', err);
       var msg = 'Sign-in failed. Please try again.';
-      if (err.code === 'auth/popup-closed-by-user') {
+      if (err.message && err.message.includes('missing API key')) {
+        msg = 'System Error: Firebase configuration missing. Ensure PUBLIC_FIREBASE_* Variables are set in GitHub Actions.';
+      } else if (err.code === 'auth/popup-closed-by-user') {
         msg = 'Sign-in cancelled.';
       } else if (err.code === 'auth/popup-blocked') {
         msg = 'Popup blocked. Allow popups and retry.';
