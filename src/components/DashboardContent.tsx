@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '@nanostores/react';
-import { $authState, refreshProfile, initAuth } from '../stores/authStore';
+import { $authState, refreshProfile, initAuth, redirectAdminIfNeeded } from '../stores/authStore';
 import TokenBalance from './TokenBalance';
 import OrderHistory from './OrderHistory';
 import BuyTokensModal from './BuyTokensModal';
@@ -56,10 +56,7 @@ export default function DashboardContent() {
   }
 
   if (profile?.isAdmin) {
-    if (typeof window !== 'undefined') {
-      const lang = window.location.pathname.startsWith('/my') ? 'my' : 'en';
-      window.location.href = `/${lang}/admin`;
-    }
+    redirectAdminIfNeeded(profile);
     return null;
   }
 

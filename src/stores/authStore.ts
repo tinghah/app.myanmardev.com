@@ -29,6 +29,30 @@ let _googleProviderRef: GoogleAuthProvider | null = null;
 let _githubProviderRef: GithubAuthProvider | null = null;
 let _initialized = false;
 
+// ─── Admin Force Redirect ────────────────────────────────
+// Admin accounts should ONLY see /admin pages. Never user-facing pages.
+
+const ADMIN_ALLOWED_PATHS = ['/admin'];
+
+function isAdminAllowedPath(pathname: string): boolean {
+  return ADMIN_ALLOWED_PATHS.some((p) => pathname.includes(p));
+}
+
+function getLang(pathname: string): string {
+  return pathname.startsWith('/my') ? 'my' : 'en';
+}
+
+export function redirectAdminIfNeeded(profile: UserProfile | null) {
+  if (typeof window === 'undefined') return;
+  if (!profile?.isAdmin) return;
+
+  const pathname = window.location.pathname;
+  if (!isAdminAllowedPath(pathname)) {
+    const lang = getLang(pathname);
+    window.location.href = `/${lang}/admin/users`;
+  }
+}
+
 export function initAuth() {
   if (typeof window === 'undefined') return;
   if (_initialized) return;
@@ -78,11 +102,7 @@ export function initAuth() {
             document.body.setAttribute('data-auth', 'signed-in');
             if (userProfile.isAdmin) {
               document.body.setAttribute('data-admin', 'true');
-              const currentPath = window.location.pathname;
-              if (!currentPath.includes('/admin')) {
-                const lang = currentPath.startsWith('/my') ? 'my' : 'en';
-                window.location.href = `/${lang}/admin/users`;
-              }
+              redirectAdminIfNeeded(userProfile);
             } else {
               document.body.removeAttribute('data-admin');
             }

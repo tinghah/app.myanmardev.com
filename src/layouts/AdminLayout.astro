@@ -14,7 +14,7 @@ const currentPath = Astro.url.pathname;
 <Layout title={`${title} | Admin`} lang={lang}>
   <!-- Admin Guard Script -->
   <script>
-    import { $authState } from '../stores/authStore';
+    import { $authState, redirectAdminIfNeeded } from '../stores/authStore';
     
     // Subscribe to auth state changes to protect the route
     $authState.subscribe((state) => {

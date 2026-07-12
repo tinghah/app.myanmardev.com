@@ -14,6 +14,7 @@ export default function TokenBalance() {
   }, []);
 
   if (!isSignedIn || !profile) return null;
+  if (profile.isAdmin) return null;
 
   return (
     <>

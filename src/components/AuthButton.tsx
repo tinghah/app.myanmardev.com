@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from '@nanostores/react';
-import { $authState, initAuth, signInWithGoogle, signInWithGitHub, signOut } from '../stores/authStore';
+import { $authState, initAuth, signInWithGoogle, signInWithGitHub, signOut, redirectAdminIfNeeded } from '../stores/authStore';
 
 // ─── Helpers ──────────────────────────────────────────────
 
@@ -241,8 +241,8 @@ function UserMenu({ profile, user, onSignOut }: UserMenuProps) {
             {initial}
           </div>
         )}
-        {/* Token balance chip */}
-        {profile && (
+        {/* Token balance chip - hidden for admins */}
+        {profile && !profile.isAdmin && (
           <div style={{
             fontFamily: 'var(--mono)', fontSize: '0.625rem', fontWeight: 700,
             color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '2px',
@@ -362,15 +362,19 @@ export default function AuthButton() {
     initAuth();
   }, []);
 
-  // Auto-redirect to dashboard after sign-in if on the signin page
+  // Auto-redirect after sign-in: admins go to /admin, users go to /dashboard
   useEffect(() => {
     if (isSignedIn && typeof window !== 'undefined') {
       const path = window.location.pathname;
       if (path.includes('/auth/signin')) {
-        window.location.href = getDashboardPath();
+        if (profile?.isAdmin) {
+          window.location.href = `/${getLangFromPath()}/admin/users`;
+        } else {
+          window.location.href = getDashboardPath();
+        }
       }
     }
-  }, [isSignedIn]);
+  }, [isSignedIn, profile?.isAdmin]);
 
   const handleOpen = useCallback(() => {
     setShowModal(true);
