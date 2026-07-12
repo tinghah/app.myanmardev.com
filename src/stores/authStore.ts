@@ -9,6 +9,7 @@ export interface AuthState {
   isApproved: boolean;
   profile: UserProfile | null;
   user: any;
+  error: string | null;
 }
 
 export const $authState = atom<AuthState>({
@@ -18,6 +19,7 @@ export const $authState = atom<AuthState>({
   isApproved: false,
   profile: null,
   user: null,
+  error: null,
 });
 
 let _unsub: (() => void) | null = null;
@@ -36,7 +38,7 @@ export function initAuth() {
     try {
       const fb = await import('../lib/firebase');
       const authMod = await import('firebase/auth');
-      const { getGitHubUsername, isApproved, createOrUpdateUserProfile, getUserProfile } = await import('../lib/auth');
+      const { getGitHubUsername, isApproved, createOrUpdateUserProfile } = await import('../lib/auth');
 
       const auth = fb.getAuthInstance();
       if (!auth) {
@@ -51,18 +53,15 @@ export function initAuth() {
 
       _unsub = authMod.onAuthStateChanged(auth, async (u: any) => {
         if (u) {
-          const provider = u.providerData?.[0]?.providerId;
-          const authProvider = provider === 'google.com' ? 'google' : 'github';
-
           try {
-            const userProfile = await createOrUpdateUserProfile(u, authProvider);
-            const username = userProfile.githubUsername || getGitHubUsername(u);
-            let approved = false;
+            // createOrUpdateUserProfile now auto-detects provider — no undefined values
+            const userProfile = await createOrUpdateUserProfile(u);
+            const username = userProfile.githubUsername || getGitHubUsername(u) || null;
 
+            // Only check approved_users for GitHub users (Google users are always approved)
+            let approved = true;
             if (username) {
               approved = await isApproved(username);
-            } else {
-              approved = true;
             }
 
             $authState.set({
@@ -72,22 +71,26 @@ export function initAuth() {
               isApproved: approved,
               profile: userProfile,
               user: u,
+              error: null,
             });
-          } catch (e) {
-            console.warn('Failed to create/update profile:', e);
-            const username = getGitHubUsername(u);
-            let approved = false;
-            if (username) {
-              approved = await isApproved(username);
-            }
+
+            // Mark body as signed-in for CSS auth gating
+            document.body.setAttribute('data-auth', 'signed-in');
+
+          } catch (e: any) {
+            console.warn('[AuthStore] Failed to create/update profile:', e?.message || e);
+            // Still sign in the user even if Firestore write fails
+            const username = getGitHubUsername(u) || null;
             $authState.set({
               loading: false,
               isSignedIn: true,
               githubUsername: username,
-              isApproved: approved,
+              isApproved: true,
               profile: null,
               user: u,
+              error: e?.message || 'Profile sync failed',
             });
+            document.body.setAttribute('data-auth', 'signed-in');
           }
         } else {
           $authState.set({
@@ -97,39 +100,47 @@ export function initAuth() {
             isApproved: false,
             profile: null,
             user: null,
+            error: null,
           });
+          document.body.removeAttribute('data-auth');
         }
       });
     } catch (e) {
-      console.warn('AuthStore: Firebase not configured:', e);
-      $authState.set({ ...$authState.get(), loading: false });
+      console.warn('[AuthStore] Firebase not configured:', e);
+      $authState.set({ ...$authState.get(), loading: false, error: 'Firebase not configured' });
     }
   })();
 }
 
+// ─── Sign In Actions ─────────────────────────────────────
+
 export async function signInWithGoogle() {
   if (!_authRef || !_authModRef || !_googleProviderRef) {
     console.error('[Auth] Firebase not initialized yet');
-    return;
+    return { error: 'Not initialized' };
   }
   try {
-    await _authModRef.signInWithPopup(_authRef, _googleProviderRef);
+    const result = await _authModRef.signInWithPopup(_authRef, _googleProviderRef);
+    return { user: result.user };
   } catch (err: any) {
-    console.error('[Auth] Google sign-in failed:', err?.code, err?.message);
-    alert(`Sign-in failed: ${err?.message || err}`);
+    const msg = err?.message || String(err);
+    console.error('[Auth] Google sign-in failed:', err?.code, msg);
+    return { error: msg };
   }
 }
 
 export async function signInWithGitHub() {
   if (!_authRef || !_authModRef || !_githubProviderRef) {
     console.error('[Auth] Firebase not initialized yet');
-    return;
+    return { error: 'Not initialized' };
   }
   try {
-    await _authModRef.signInWithPopup(_authRef, _githubProviderRef);
+    const result = await _authModRef.signInWithPopup(_authRef, _githubProviderRef);
+    return { user: result.user };
   } catch (err: any) {
-    console.error('[Auth] GitHub sign-in failed:', err?.code, err?.message);
-    alert(`Sign-in failed: ${err?.message || err}`);
+    const msg = err?.message || String(err);
+    console.error('[Auth] GitHub sign-in failed:', err?.code, msg);
+    return { error: msg };
   }
 }
 
@@ -140,16 +151,13 @@ export async function signOut() {
 
 export async function refreshProfile() {
   const state = $authState.get();
-  if (!state.user) {
-    $authState.set({ ...state, profile: null });
-    return;
-  }
+  if (!state.user) return;
 
   try {
     const { getUserProfile } = await import('../lib/auth');
     const userProfile = await getUserProfile(state.user.uid);
     $authState.set({ ...state, profile: userProfile });
   } catch (e) {
-    console.warn('Failed to refresh profile:', e);
+    console.warn('[AuthStore] Failed to refresh profile:', e);
   }
 }

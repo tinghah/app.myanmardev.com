@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, updateDoc, increment, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, increment, Timestamp, deleteField } from 'firebase/firestore';
 import { getDB } from './firebase';
 
 // ─── User Profile Types ─────────────────────────────────
@@ -8,59 +8,93 @@ export interface UserProfile {
   email: string;
   displayName: string;
   photoURL: string;
-  provider: 'google' | 'github';
+  provider: 'google' | 'github' | 'unknown';
   githubUsername?: string;
   tokenBalance: number;
   createdAt: Timestamp;
   lastLoginAt: Timestamp;
 }
 
+// ─── Detect Provider from Firebase User ─────────────────
+
+function detectProvider(user: any): 'google' | 'github' | 'unknown' {
+  // Check providerData array first (most reliable)
+  for (const p of user.providerData || []) {
+    if (p?.providerId === 'google.com') return 'google';
+    if (p?.providerId === 'github.com') return 'github';
+  }
+  // Fallback: check email domain hints
+  if (user.email?.endsWith('@gmail.com')) return 'google';
+  return 'unknown';
+}
+
+// ─── Extract GitHub Username ──────────────────────────────
+
+function extractGithubUsername(user: any): string | null {
+  for (const p of user.providerData || []) {
+    if (p?.providerId === 'github.com') {
+      // GitHub sets reloadUserInfo with screenName
+      if (user.reloadUserInfo?.screenName) return user.reloadUserInfo.screenName;
+      // Sometimes the displayName is the username
+      if (p.displayName) return p.displayName.toLowerCase().replace(/\s+/g, '');
+      // email@github.com format (rare)
+      if (p.email?.endsWith('@github.com')) return p.email.replace('@github.com', '');
+    }
+  }
+  return null;
+}
+
+// ─── Sanitize: strip any undefined values from object ────
+
+function stripUndefined<T extends Record<string, any>>(obj: T): T {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined && v !== null)
+  ) as T;
+}
+
 // ─── User Profile Functions ─────────────────────────────
 
 /**
- * Create or update user profile in Firestore on login
+ * Create or update user profile in Firestore on login.
+ * Never calls setDoc/updateDoc with undefined values.
  */
-export async function createOrUpdateUserProfile(user: any, provider: 'google' | 'github'): Promise<UserProfile> {
+export async function createOrUpdateUserProfile(user: any): Promise<UserProfile> {
   const db = getDB();
   const userRef = doc(db, 'users', user.uid);
   const userSnap = await getDoc(userRef);
 
   const now = Timestamp.now();
+  const provider = detectProvider(user);
+  const githubUsername = provider === 'github' ? extractGithubUsername(user) : null;
 
   if (userSnap.exists()) {
-    // Update existing user
-    const updateData: any = {
+    // Update only safe, non-undefined fields
+    const updateData: Record<string, any> = stripUndefined({
       lastLoginAt: now,
       displayName: user.displayName || '',
       photoURL: user.photoURL || '',
-    };
-
-    // Update GitHub username if signing in with GitHub
-    if (provider === 'github') {
-      const githubUsername = extractGithubUsername(user);
-      if (githubUsername) {
-        updateData.githubUsername = githubUsername;
-      }
-    }
+      // Only update githubUsername if we found one
+      ...(githubUsername ? { githubUsername } : {}),
+    });
 
     await updateDoc(userRef, updateData);
 
-    return { ...userSnap.data(), ...updateData } as UserProfile;
+    const existing = userSnap.data() as UserProfile;
+    return { ...existing, ...updateData };
   } else {
-    // Create new user with 0 tokens
-    const githubUsername = provider === 'github' ? extractGithubUsername(user) : undefined;
-
-    const newProfile: UserProfile = {
+    // Create new user — strip all undefined / null before writing
+    const newProfile = stripUndefined({
       uid: user.uid,
       email: user.email || '',
       displayName: user.displayName || '',
       photoURL: user.photoURL || '',
       provider,
-      githubUsername: githubUsername || undefined,
       tokenBalance: 0,
       createdAt: now,
       lastLoginAt: now,
-    };
+      // Only include githubUsername if we have one
+      ...(githubUsername ? { githubUsername } : {}),
+    }) as UserProfile;
 
     await setDoc(userRef, newProfile);
     return newProfile;
@@ -105,29 +139,10 @@ export async function deductTokens(uid: string, amount: number): Promise<boolean
 }
 
 /**
- * Extract GitHub username from Firebase user object
+ * Get GitHub username from user (public helper)
  */
-function extractGithubUsername(user: any): string | null {
-  // Try providerData first
-  for (const provider of user.providerData || []) {
-    if (provider.providerId === 'github.com') {
-      // GitHub username is in the email (username@github.com) or displayName
-      if (provider.email && provider.email.endsWith('@github.com')) {
-        return provider.email.replace('@github.com', '');
-      }
-      // Sometimes it's in the displayName
-      if (provider.displayName) {
-        return provider.displayName.toLowerCase().replace(/\s+/g, '');
-      }
-    }
-  }
-
-  // Fallback: try to extract from email
-  if (user.email && user.email.endsWith('@github.com')) {
-    return user.email.replace('@github.com', '');
-  }
-
-  return null;
+export function getGitHubUsername(user: any): string | null {
+  return extractGithubUsername(user);
 }
 
 /**
@@ -138,11 +153,4 @@ export async function isApproved(username: string): Promise<boolean> {
   const ref = doc(db, 'approved_users', username.toLowerCase());
   const snap = await getDoc(ref);
   return snap.exists();
-}
-
-/**
- * Legacy: Get GitHub username from user (kept for backward compatibility)
- */
-export function getGitHubUsername(user: any): string | null {
-  return extractGithubUsername(user);
 }

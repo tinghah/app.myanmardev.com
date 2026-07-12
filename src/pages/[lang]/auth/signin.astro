@@ -7,27 +7,42 @@ export function getStaticPaths() {
 }
 import Layout from '../../../layouts/Layout.astro';
 import Header from '../../../components/Header.astro';
-
 import { t, type Language } from '../../../i18n/utils';
 
 const { lang } = Astro.params as { lang: Language };
 ---
 
-<Layout title={`${t(lang, 'auth.signIn')} | myanmardev.com`} description="Sign in to myanmardev.com with Google or GitHub">
+<Layout title={`${t(lang, 'auth.signIn')} | myanmardev.com`} description="Sign in to myanmardev.com with Google or GitHub" lang={lang}>
   <Header lang={lang} />
 
   <main class="signin-page">
+    <!-- Background -->
+    <div class="signin-bg" aria-hidden="true"></div>
+
     <div class="signin-card">
-      <a href="/" class="signin-logo">
-        <span style="color:var(--accent)">myanmardev</span>.com
+      <!-- Logo -->
+      <a href={`/${lang}/`} class="signin-logo">
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" opacity="0.9"/>
+            <path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+            <path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.8"/>
+          </svg>
+        </div>
+        <span><span class="brand-accent">myanmardev</span>.com</span>
       </a>
 
-      <h1 class="signin-title">{t(lang, 'auth.title')}</h1>
-      <div style="width:2rem;height:1px;background:var(--accent);margin:0.75rem 0"></div>
+      <!-- Header -->
+      <div class="signin-header">
+        <h1 class="signin-title">{t(lang, 'auth.title')}</h1>
+        <p class="signin-sub">{lang === 'my' ? 'Google သို့ GitHub ဖြင့် ချက်ချင်း ဝင်ရောက်ပါ' : 'One tap to deploy your subdomain instantly'}</p>
+      </div>
 
+      <!-- Buttons -->
       <div class="signin-buttons">
-        <button id="btn-google" class="signin-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24">
+        <!-- Google -->
+        <button id="btn-google" class="signin-btn signin-btn--google" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -36,16 +51,49 @@ const { lang } = Astro.params as { lang: Language };
           {t(lang, 'auth.google')}
         </button>
 
-        <button id="btn-github" class="signin-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <!-- GitHub -->
+        <button id="btn-github" class="signin-btn signin-btn--github" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
           </svg>
           {t(lang, 'auth.github')}
         </button>
       </div>
 
-      <div id="signin-error" class="signin-error" style="display:none">
+      <!-- Error Message -->
+      <div id="signin-error" class="signin-error" role="alert" aria-live="polite" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
         <span id="signin-error-text"></span>
+      </div>
+
+      <!-- Success state -->
+      <div id="signin-success" class="signin-success" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <span>Signed in! Redirecting to dashboard…</span>
+      </div>
+
+      <!-- Features strip -->
+      <div class="signin-features">
+        <div class="signin-feature">
+          <span>⚡</span>
+          <span>30s Deploy</span>
+        </div>
+        <div class="signin-feature">
+          <span>🔒</span>
+          <span>Free SSL</span>
+        </div>
+        <div class="signin-feature">
+          <span>🪙</span>
+          <span>Token Economy</span>
+        </div>
+        <div class="signin-feature">
+          <span>🌏</span>
+          <span>Myanmar Devs</span>
+        </div>
       </div>
 
       <p class="signin-footer">{t(lang, 'auth.terms')}</p>
@@ -55,44 +103,101 @@ const { lang } = Astro.params as { lang: Language };
 
 <style>
   .signin-page {
-    min-height: calc(100vh - 3rem);
+    min-height: calc(100vh - 3.5rem);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2rem clamp(1.25rem, 4vw, 3rem);
+    position: relative;
+    isolation: isolate;
   }
 
+  /* Grid background */
+  .signin-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 60% 80% at 50% 40%, rgba(0,0,0,0.5) 0%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 60% 80% at 50% 40%, rgba(0,0,0,0.5) 0%, transparent 100%);
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* Card */
   .signin-card {
-    border: 1px solid var(--rule);
+    position: relative;
+    z-index: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
     padding: 2.5rem 2rem;
-    max-width: 380px;
+    max-width: 420px;
     width: 100%;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.3), 0 0 0 1px var(--border),
+                0 0 80px rgba(245,158,11,0.05);
   }
 
+  /* Logo */
   .signin-logo {
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: -0.02em;
-    display: block;
-    margin-bottom: 2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     text-decoration: none;
     color: inherit;
+    margin-bottom: 2rem;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    transition: opacity 0.15s ease;
+  }
+  .signin-logo:hover { opacity: 0.8; }
+
+  .logo-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    flex-shrink: 0;
+    box-shadow: 0 0 16px var(--glow);
+  }
+
+  .brand-accent { color: var(--accent); }
+
+  /* Header */
+  .signin-header {
+    margin-bottom: 1.75rem;
   }
 
   .signin-title {
     font-family: var(--display);
-    font-size: 1.5rem;
+    font-size: 1.625rem;
     font-weight: 700;
     color: var(--ink);
-    margin: 0;
+    margin: 0 0 0.4rem;
+    letter-spacing: -0.02em;
   }
 
+  .signin-sub {
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Buttons */
   .signin-buttons {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   .signin-btn {
@@ -100,107 +205,210 @@ const { lang } = Astro.params as { lang: Language };
     align-items: center;
     justify-content: center;
     gap: 0.75rem;
-    padding: 0.75rem 1.25rem;
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
+    padding: 0.9rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    font-family: var(--body);
     cursor: pointer;
-    transition: background 0.15s, color 0.15s;
     width: 100%;
-    border: 1px solid var(--ink);
-    background: transparent;
-    color: var(--ink);
-    border-radius: 0;
+    transition: all 0.15s ease;
+    border: none;
   }
 
-  .signin-btn:hover {
-    background: var(--ink);
-    color: var(--base);
+  .signin-btn--google {
+    background: #fff;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+  }
+  .signin-btn--google:hover {
+    background: #f8f9fa;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
   }
 
+  .signin-btn--github {
+    background: #24292f;
+    color: #fff;
+    border: 1px solid #30363d;
+  }
+  .signin-btn--github:hover {
+    background: #2f363d;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+
+  .signin-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Error */
   .signin-error {
-    margin-top: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
     padding: 0.75rem 1rem;
-    border: 1px solid #ef4444;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 8px;
+    color: #f87171;
     font-family: var(--mono);
     font-size: 0.75rem;
-    color: #ef4444;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
   }
 
+  /* Success */
+  .signin-success {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.25);
+    border-radius: 8px;
+    color: #22c55e;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Features strip */
+  .signin-features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin: 1.25rem 0;
+    padding: 1rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .signin-feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--mono);
+    font-size: 0.5625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .signin-feature span:first-child {
+    font-size: 1.1rem;
+  }
+
+  /* Footer */
   .signin-footer {
     font-family: var(--mono);
-    font-size: 0.625rem;
+    font-size: 0.5875rem;
     color: var(--muted);
-    margin: 1.5rem 0 0;
+    margin: 0;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.08em;
+    text-align: center;
+    line-height: 1.5;
   }
 </style>
 
 <script>
   import { getAuthInstance, getGoogleProvider, getGithubProvider } from '../../../lib/firebase';
   import { createOrUpdateUserProfile } from '../../../lib/auth';
-  import { signInWithPopup } from 'firebase/auth';
+  import { signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 
-  var btnGoogle = document.getElementById('btn-google') as HTMLButtonElement;
-  var btnGithub = document.getElementById('btn-github') as HTMLButtonElement;
-  var errorDiv = document.getElementById('signin-error');
-  var errorText = document.getElementById('signin-error-text');
+  const btnGoogle = document.getElementById('btn-google') as HTMLButtonElement;
+  const btnGithub = document.getElementById('btn-github') as HTMLButtonElement;
+  const errorDiv = document.getElementById('signin-error') as HTMLElement;
+  const errorText = document.getElementById('signin-error-text') as HTMLElement;
+  const successDiv = document.getElementById('signin-success') as HTMLElement;
+
+  function getLang() {
+    return window.location.pathname.split('/')[1] || 'en';
+  }
 
   function showError(msg: string) {
-    if (errorText && errorDiv) {
-      errorText.textContent = msg;
-      errorDiv.style.display = 'block';
+    errorText.textContent = msg;
+    errorDiv.style.display = 'flex';
+    successDiv.style.display = 'none';
+  }
+
+  function showSuccess() {
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'flex';
+  }
+
+  function setLoading(v: boolean) {
+    btnGoogle.disabled = v;
+    btnGithub.disabled = v;
+    if (v) {
+      btnGoogle.style.opacity = '0.6';
+      btnGithub.style.opacity = '0.6';
+    } else {
+      btnGoogle.style.opacity = '1';
+      btnGithub.style.opacity = '1';
     }
   }
 
-  function hideError() {
-    if (errorDiv) {
-      errorDiv.style.display = 'none';
-    }
+  // Check if already signed in
+  try {
+    const auth = getAuthInstance();
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        showSuccess();
+        setTimeout(() => {
+          window.location.href = `/${getLang()}/dashboard`;
+        }, 800);
+      }
+    });
+  } catch (e) {
+    // Firebase not configured yet
   }
 
-  async function handleSignIn(provider: string) {
-    hideError();
-    if (btnGoogle) btnGoogle.disabled = true;
-    if (btnGithub) btnGithub.disabled = true;
+  async function handleSignIn(type: 'google' | 'github') {
+    errorDiv.style.display = 'none';
+    setLoading(true);
 
     try {
-      var auth = getAuthInstance();
-      var authProvider = provider === 'google'
-        ? getGoogleProvider()
-        : getGithubProvider();
-
-      var result = await signInWithPopup(auth, authProvider);
+      const auth = getAuthInstance();
+      const provider = type === 'google' ? getGoogleProvider() : getGithubProvider();
+      const result = await signInWithPopup(auth, provider);
 
       if (result.user) {
-        await createOrUpdateUserProfile(result.user);
-        const lang = window.location.pathname.split('/')[1] || 'en';
-        window.location.href = `/${lang}/dashboard`;
+        // Sync profile to Firestore (handles undefined fields safely now)
+        try {
+          await createOrUpdateUserProfile(result.user);
+        } catch (profileErr) {
+          console.warn('[SignIn] Profile sync warning:', profileErr);
+          // Still redirect — user is authenticated even if Firestore write had a transient error
+        }
+        showSuccess();
+        setTimeout(() => {
+          window.location.href = `/${getLang()}/dashboard`;
+        }, 600);
       }
     } catch (err: any) {
-      console.error('Sign-in error:', err);
-      var msg = 'Sign-in failed. Please try again.';
-      if (err.message && err.message.includes('missing API key')) {
-        msg = 'System Error: Firebase configuration missing. Ensure PUBLIC_FIREBASE_* Variables are set in GitHub Actions.';
-      } else if (err.code === 'auth/popup-closed-by-user') {
+      let msg = 'Sign-in failed. Please try again.';
+      if (err?.message?.includes('missing API key') || err?.message?.includes('Firebase')) {
+        msg = 'Configuration error: Firebase variables not set. Check GitHub Actions → Variables.';
+      } else if (err?.code === 'auth/popup-closed-by-user') {
         msg = 'Sign-in cancelled.';
-      } else if (err.code === 'auth/popup-blocked') {
-        msg = 'Popup blocked. Allow popups and retry.';
-      } else if (err.code === 'auth/network-request-failed') {
-        msg = 'Network error. Check connection.';
-      } else if (err.message) {
+      } else if (err?.code === 'auth/popup-blocked') {
+        msg = 'Popup blocked. Please allow popups for this site and retry.';
+      } else if (err?.code === 'auth/network-request-failed') {
+        msg = 'Network error. Check your connection and try again.';
+      } else if (err?.code === 'auth/account-exists-with-different-credential') {
+        msg = 'This email is linked to a different provider. Try signing in with Google instead.';
+      } else if (err?.message) {
         msg = err.message;
       }
       showError(msg);
-    } finally {
-      if (btnGoogle) btnGoogle.disabled = false;
-      if (btnGithub) btnGithub.disabled = false;
+      setLoading(false);
     }
   }
 
-  btnGoogle?.addEventListener('click', function() { handleSignIn('google'); });
-  btnGithub?.addEventListener('click', function() { handleSignIn('github'); });
+  btnGoogle?.addEventListener('click', () => handleSignIn('google'));
+  btnGithub?.addEventListener('click', () => handleSignIn('github'));
 </script>
