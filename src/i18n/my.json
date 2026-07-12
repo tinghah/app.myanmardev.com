@@ -20,7 +20,8 @@
   "products": {
     "section": "/ ထုတ်ကုန်",
     "heading": "ကျွန်ုပ်တို့ ဘာတွေလုပ်သလဲ",
-    "sub": "မြန်မာ developer များအတွက် အလိုအလျောက် web ဝန်ဆောင်မှု",
+    "sub": "မြန်မာ developer များအတွက် infrastructure-grade tools",
+    "sub_old": "မြန်မာ developer များအတွက် အလိုအလျောက် web ဝန်ဆောင်မှု",
     "p1": {
       "name": "Subdomain",
       "desc": "yourname.myanmardev.com",
@@ -143,19 +144,19 @@
   "testimonials": {
     "section": "/ ထင်မြင်ချက်",
     "heading": "Developer များ ဘာပြောသလဲ",
-    "sub": "မြန်မာ developer များ ယုံကြည်စိတ်ချရ",
+    "sub": "အစစ်အမှန် developer များ၊ အစစ်အမှန် deployment များ",
     "t1": {
-      "q": "myanmardev.com က ကျွန်တော့် portfolio site ကို အရမ်းမြန်မြန် deploy လုပ်ပေးတယ်။ Config ခေါင်းကိုက်စရာ မလိုဘူး။",
+      "q": "myanmardev.com က ကျွန်တော့် portfolio site ကို အရမ်းမြန်မြန် deploy လုပ်ပေးတယ်။ Config ခေါင်းကိုက်စရာ မလိုဘူး — နာမည်ရွေး၊ token ပေး၊ live ဖြစ်သွားတယ်။",
       "a": "အောင်ခန့်",
       "role": "Full-Stack Developer, ရန်ကုန်"
     },
     "t2": {
-      "q": "Token system က ရိုးရှင်းပြီး သက်သာတယ်။ တစ်မိနစ်အတွင်း subdomain ရခဲ့တယ်။",
+      "q": "Token system က ရိုးရှင်းပြီး သက်သာတယ်။ Vercel ကို point လုပ်တဲ့ subdomain ကို ၆၀ စက္ကန့်အတွင်း ရခဲ့တယ်။ အံ့သြဘွယ် product ပဲ။",
       "a": "ဇင်မာဦး",
       "role": "Frontend Developer, မန္တလေး"
     },
     "t3": {
-      "q": "နောက်ဆုံးတော့ မြန်မာ developer တွေအတွက် ဆောက်ထားတဲ့ platform ရပြီ။ Support ကောင်းတယ်။",
+      "q": "နောက်ဆုံးတော့ မြန်မာ developer တွေအတွက် ဆောက်ထားတဲ့ platform ရပြီ။ VPN မလိုဘူး၊ ကျပ်နှင့် ပေးနိုင်တယ်၊ တကယ်အလုပ်လုပ်တယ်!",
       "a": "ဟိန်းထက်",
       "role": "Freelance Developer, နေပြည်တော်"
     }

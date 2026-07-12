@@ -1,0 +1,167 @@
+---
+import { type Language } from '../i18n/utils';
+interface Props { lang: Language; }
+const { lang } = Astro.props;
+---
+
+<section class="stats-section" aria-label="Platform statistics">
+  <div class="stats-inner">
+    <div class="stats-grid">
+
+      <div class="stat-item rise">
+        <div class="stat-num" data-count="50">0</div>
+        <div class="stat-suffix">+</div>
+        <div class="stat-label">Myanmar Developers</div>
+      </div>
+
+      <div class="stat-divider"></div>
+
+      <div class="stat-item rise">
+        <div class="stat-num" data-count="200">0</div>
+        <div class="stat-suffix">+</div>
+        <div class="stat-label">Subdomains Deployed</div>
+      </div>
+
+      <div class="stat-divider"></div>
+
+      <div class="stat-item rise">
+        <div class="stat-num" data-count="30">0</div>
+        <div class="stat-suffix">s</div>
+        <div class="stat-label">Avg. Deploy Time</div>
+      </div>
+
+      <div class="stat-divider"></div>
+
+      <div class="stat-item rise">
+        <div class="stat-num" data-count="99">0</div>
+        <div class="stat-suffix">.9%</div>
+        <div class="stat-label">Uptime Guarantee</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  .stats-section {
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .stats-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 clamp(1.25rem, 4vw, 3rem);
+  }
+
+  .stats-grid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .stat-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    padding: clamp(1.5rem, 4vw, 2.5rem) 0;
+    flex: 1;
+    min-width: 140px;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+  }
+
+  .stat-num-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+  }
+
+  .stat-num {
+    font-family: var(--mono);
+    font-weight: 800;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--accent);
+    line-height: 1;
+    display: inline;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .stat-suffix {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+    color: var(--accent);
+    line-height: 1;
+    display: inline;
+    opacity: 0.75;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    font-weight: 600;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: clamp(2rem, 5vw, 3rem);
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 600px) {
+    .stats-grid { gap: 0; }
+    .stat-divider { display: none; }
+    .stat-item {
+      flex: 0 0 50%;
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-item:nth-child(odd) { border-right: 1px solid var(--border); }
+    .stat-item:nth-last-child(-n+2) { border-bottom: none; }
+  }
+</style>
+
+<script>
+  // Count-up animation on scroll
+  function animateCount(el: HTMLElement) {
+    const target = parseInt(el.dataset.count || '0', 10);
+    const duration = 1800;
+    const start = performance.now();
+    const ease = (t: number) => t < 0.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1;
+
+    function tick(now: number) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const value = Math.round(ease(progress) * target);
+      el.textContent = value.toString();
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const nums = entry.target.querySelectorAll<HTMLElement>('.stat-num');
+        nums.forEach(animateCount);
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  const section = document.querySelector('.stats-section');
+  if (section) io.observe(section);
+</script>

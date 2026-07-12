@@ -1,17 +1,16 @@
 ---
-// ThemeToggle.astro — sun/moon dark-mode toggle button
+// ThemeToggle.astro — Sun/Moon dark-mode toggle
 ---
 
 <button
   class="theme-toggle"
   aria-label="Toggle theme"
-  style="font-family:var(--mono);font-size:0.625rem;border:1px solid var(--rule);border-radius:0;padding:0.35rem 0.6rem;background:transparent;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;line-height:1;text-transform:uppercase;letter-spacing:0.14em"
+  title="Toggle light/dark mode"
 >
-  <!-- Sun icon — visible when dark (click to switch to light) -->
+  <!-- Sun icon — visible in dark mode (click → light) -->
   <svg
     class="theme-icon theme-icon--sun"
-    width="12"
-    height="12"
+    width="15" height="15"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -30,11 +29,10 @@
     <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
   </svg>
 
-  <!-- Moon icon — visible when light (click to switch to dark) -->
+  <!-- Moon icon — visible in light mode (click → dark) -->
   <svg
     class="theme-icon theme-icon--moon"
-    width="12"
-    height="12"
+    width="15" height="15"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -47,16 +45,32 @@
 </button>
 
 <style>
-  /* Default (no data-theme or data-theme="light"): show moon, hide sun */
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .theme-toggle:hover {
+    color: var(--ink);
+    border-color: var(--border-accent);
+    background: var(--surface-2);
+  }
+
+  /* Default (no data-theme or light): show moon, hide sun */
   .theme-icon--sun  { display: none; }
   .theme-icon--moon { display: inline-block; }
 
   /* Dark mode: show sun, hide moon */
   :root[data-theme="dark"] .theme-icon--sun  { display: inline-block; }
   :root[data-theme="dark"] .theme-icon--moon { display: none; }
-
-  .theme-toggle:hover {
-    color: var(--ink);
-    border-color: var(--ink);
-  }
 </style>

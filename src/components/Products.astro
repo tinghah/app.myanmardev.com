@@ -8,224 +8,277 @@ interface Props {
 const { lang } = Astro.props;
 ---
 
-<section id="products" style="padding:clamp(3rem,7vw,5rem) clamp(1.25rem,4vw,3rem);border-bottom:1px solid var(--rule)">
-  <div style="max-width:78rem;margin:0 auto">
-    <div class="sx rise"><b></b> <span>{t(lang, 'products.section')}</span></div>
-    <h2 class="h-section rise" style="margin-top:.75rem">{t(lang, 'products.heading')}</h2>
+<section id="products" class="section-pad" style="border-bottom: 1px solid var(--border);">
+  <div class="container">
 
-    <div class="product-gallery">
-      <!-- Product 1: Subdomain -->
-      <div class="product-card rise">
-        <div class="product-img">
-          <img src="/images/products/subdomain-card.svg" alt="Subdomain registration" loading="lazy" />
+    <div class="section-header">
+      <div class="sx rise"><b></b> <span>{t(lang, 'products.section')}</span></div>
+      <h2 class="h-section rise" style="margin-top: 0.75rem;">{t(lang, 'products.heading')}</h2>
+      <p class="lede rise" style="margin-top: 0.5rem;">{t(lang, 'products.sub')}</p>
+    </div>
+
+    <div class="products-grid">
+
+      <!-- Product 1: Subdomain — FEATURED -->
+      <div class="product-card card-glass card-featured rise">
+        <div class="product-card-top">
+          <div class="product-icon product-icon--live">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <div class="badge badge--live">{t(lang, 'products.p1.status')}</div>
         </div>
-        <div class="product-header">
-          <span class="product-status product-status--live">{t(lang, 'products.p1.status')}</span>
-          <h3 class="product-name">{t(lang, 'products.p1.name')}</h3>
+
+        <div class="product-body">
+          <h3 class="h-card product-name">{t(lang, 'products.p1.name')}</h3>
           <p class="product-desc">{t(lang, 'products.p1.desc')}</p>
+
+          <ul class="product-features">
+            <li><span class="feat-check">✓</span> Instant DNS propagation (~30s)</li>
+            <li><span class="feat-check">✓</span> Free SSL certificate auto-provisioned</li>
+            <li><span class="feat-check">✓</span> GitHub Pages, Vercel, Netlify ready</li>
+            <li><span class="feat-check">✓</span> Custom CNAME &amp; A records</li>
+            <li><span class="feat-check">✓</span> Ownership TXT verification</li>
+          </ul>
         </div>
-        <div class="product-price-row">
-          <span class="product-price">{t(lang, 'products.p1.usd')}</span>
-          <span class="product-price-mmk">{t(lang, 'products.p1.mmk')}</span>
-        </div>
-        <div class="product-actions">
-          <a href={`/${lang}/auth/signin`} class="btn" style="flex:1;justify-content:center">{t(lang, 'products.p1.order')}</a>
-          <button class="btn btn--ghost details-toggle" data-target="details-1" style="flex:1;justify-content:center">{t(lang, 'products.p1.info')}</button>
-        </div>
-        <div class="product-details" id="details-1">
-          <p>{t(lang, 'products.p1.details')}</p>
+
+        <div class="product-footer">
+          <div class="product-price-block">
+            <span class="price-usd">{t(lang, 'products.p1.usd')}</span>
+            <span class="price-per"> / {t(lang, 'products.p1.price')}</span>
+            <div class="price-mmk">{t(lang, 'products.p1.mmk')}</div>
+          </div>
+          <a href={`/${lang}/auth/signin`} class="btn" style="width: 100%; justify-content: center; margin-top: 1rem;">
+            {t(lang, 'products.p1.order')}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
         </div>
       </div>
 
       <!-- Product 2: Website Builder -->
-      <div class="product-card rise">
-        <div class="product-img">
-          <img src="/images/products/website-builder-card.svg" alt="Website builder" loading="lazy" />
+      <div class="product-card card-glass rise">
+        <div class="product-card-top">
+          <div class="product-icon product-icon--soon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
+            </svg>
+          </div>
+          <div class="badge badge--soon">{t(lang, 'products.p2.status')}</div>
         </div>
-        <div class="product-header">
-          <span class="product-status">{t(lang, 'products.p2.status')}</span>
-          <h3 class="product-name">{t(lang, 'products.p2.name')}</h3>
+
+        <div class="product-body">
+          <h3 class="h-card product-name">{t(lang, 'products.p2.name')}</h3>
           <p class="product-desc">{t(lang, 'products.p2.desc')}</p>
+
+          <ul class="product-features">
+            <li><span class="feat-check feat-check--muted">○</span> Professional templates</li>
+            <li><span class="feat-check feat-check--muted">○</span> One-click deploy to subdomain</li>
+            <li><span class="feat-check feat-check--muted">○</span> Responsive &amp; SEO optimized</li>
+            <li><span class="feat-check feat-check--muted">○</span> Custom content editor</li>
+            <li><span class="feat-check feat-check--muted">○</span> Analytics dashboard</li>
+          </ul>
         </div>
-        <div class="product-price-row">
-          <span class="product-price">{t(lang, 'products.p2.usd')}</span>
-          <span class="product-price-mmk">{t(lang, 'products.p2.mmk')}</span>
-        </div>
-        <div class="product-actions">
-          <button class="btn" style="flex:1;justify-content:center;opacity:0.5;cursor:not-allowed" disabled>{t(lang, 'products.p2.order')}</button>
-          <button class="btn btn--ghost details-toggle" data-target="details-2" style="flex:1;justify-content:center">{t(lang, 'products.p2.info')}</button>
-        </div>
-        <div class="product-details" id="details-2">
-          <p>{t(lang, 'products.p2.details')}</p>
+
+        <div class="product-footer">
+          <div class="product-price-block">
+            <span class="price-usd">{t(lang, 'products.p2.usd')}</span>
+            <span class="price-per"> / {t(lang, 'products.p2.price')}</span>
+            <div class="price-mmk">{t(lang, 'products.p2.mmk')}</div>
+          </div>
+          <button class="btn btn--ghost" style="width: 100%; justify-content: center; margin-top: 1rem;" disabled>
+            {t(lang, 'products.p2.order')}
+          </button>
         </div>
       </div>
 
-      <!-- Product 3: Portfolio -->
-      <div class="product-card rise">
-        <div class="product-img">
-          <img src="/images/products/portfolio-card.svg" alt="Portfolio site" loading="lazy" />
+      <!-- Product 3: Developer Portfolio -->
+      <div class="product-card card-glass rise">
+        <div class="product-card-top">
+          <div class="product-icon product-icon--soon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+            </svg>
+          </div>
+          <div class="badge badge--soon">{t(lang, 'products.p3.status')}</div>
         </div>
-        <div class="product-header">
-          <span class="product-status">{t(lang, 'products.p3.status')}</span>
-          <h3 class="product-name">{t(lang, 'products.p3.name')}</h3>
+
+        <div class="product-body">
+          <h3 class="h-card product-name">{t(lang, 'products.p3.name')}</h3>
           <p class="product-desc">{t(lang, 'products.p3.desc')}</p>
+
+          <ul class="product-features">
+            <li><span class="feat-check feat-check--muted">○</span> Auto-sync from GitHub repos</li>
+            <li><span class="feat-check feat-check--muted">○</span> Live demo links &amp; project stats</li>
+            <li><span class="feat-check feat-check--muted">○</span> Contribution graph display</li>
+            <li><span class="feat-check feat-check--muted">○</span> Custom subdomain support</li>
+            <li><span class="feat-check feat-check--muted">○</span> Auto-updates on git push</li>
+          </ul>
         </div>
-        <div class="product-price-row">
-          <span class="product-price">{t(lang, 'products.p3.usd')}</span>
-          <span class="product-price-mmk">{t(lang, 'products.p3.mmk')}</span>
-        </div>
-        <div class="product-actions">
-          <button class="btn" style="flex:1;justify-content:center;opacity:0.5;cursor:not-allowed" disabled>{t(lang, 'products.p3.order')}</button>
-          <button class="btn btn--ghost details-toggle" data-target="details-3" style="flex:1;justify-content:center">{t(lang, 'products.p3.info')}</button>
-        </div>
-        <div class="product-details" id="details-3">
-          <p>{t(lang, 'products.p3.details')}</p>
+
+        <div class="product-footer">
+          <div class="product-price-block">
+            <span class="price-usd">{t(lang, 'products.p3.usd')}</span>
+            <span class="price-per"> / {t(lang, 'products.p3.price')}</span>
+            <div class="price-mmk">{t(lang, 'products.p3.mmk')}</div>
+          </div>
+          <button class="btn btn--ghost" style="width: 100%; justify-content: center; margin-top: 1rem;" disabled>
+            {t(lang, 'products.p3.order')}
+          </button>
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
 <style>
-  .product-gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1px;
-    margin-top: 2rem;
-    border: 1px solid var(--rule);
-    background: var(--rule);
+  .section-header {
+    margin-bottom: 2.5rem;
   }
 
+  /* ─── Product Grid ─── */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+
+  /* ─── Product Card ─── */
   .product-card {
-    background: var(--base);
-    padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    transition: border-color 0.2s ease;
+    padding: 1.5rem;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
   }
 
-  .product-card:hover {
-    border-color: var(--accent);
+  .product-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
   }
 
-  .product-img {
-    margin-bottom: 1rem;
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    overflow: hidden;
-    background: var(--wash);
+  /* ─── Product Icon ─── */
+  .product-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
   }
 
-  .product-img img {
-    width: 100%;
-    height: auto;
-    display: block;
-    transition: transform 0.3s ease;
+  .product-icon--live {
+    background: rgba(245,158,11,0.12);
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
   }
 
-  .product-card:hover .product-img img {
-    transform: scale(1.02);
+  .product-icon--soon {
+    background: var(--surface-2);
+    color: var(--muted);
+    border: 1px solid var(--border);
   }
 
-  .product-header {
+  /* ─── Product Body ─── */
+  .product-body {
     flex: 1;
   }
 
-  .product-status {
-    font-family: var(--mono);
-    font-size: 0.625rem;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-  }
-
-  .product-status--live {
-    color: var(--accent);
-  }
-
   .product-name {
-    font-family: var(--display);
-    font-size: 1.25rem;
-    font-weight: 700;
     color: var(--ink);
-    margin: 0.5rem 0 0.25rem;
+    margin-bottom: 0.4rem;
   }
 
   .product-desc {
-    font-family: var(--body);
     font-size: 0.875rem;
     color: var(--muted);
-    margin: 0;
-    line-height: 1.65;
+    line-height: 1.6;
   }
 
-  .product-price-row {
+  /* ─── Feature List ─── */
+  .product-features {
+    list-style: none;
+    margin-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .product-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.8125rem;
+    color: var(--ink-2);
+    line-height: 1.4;
+  }
+
+  .feat-check {
+    font-family: var(--mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: #22c55e;
+    flex-shrink: 0;
+    width: 14px;
+    text-align: center;
+  }
+
+  .feat-check--muted {
+    color: var(--muted);
+  }
+
+  /* ─── Product Footer ─── */
+  .product-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .product-price-block {
     display: flex;
     align-items: baseline;
-    gap: 0.75rem;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--rule);
+    gap: 0.25rem;
+    flex-wrap: wrap;
   }
 
-  .product-price {
+  .price-usd {
     font-family: var(--mono);
-    font-size: 1rem;
     font-weight: 700;
+    font-size: 1.5rem;
     color: var(--ink);
+    letter-spacing: -0.02em;
   }
 
-  .product-price-mmk {
+  .price-per {
     font-family: var(--mono);
     font-size: 0.75rem;
     color: var(--muted);
   }
 
-  .product-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 1rem;
-  }
-
-  .product-details {
-    display: none;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--rule);
-  }
-
-  .product-details.open {
-    display: block;
-  }
-
-  .product-details p {
-    font-family: var(--body);
-    font-size: 0.875rem;
+  .price-mmk {
+    font-family: var(--mono);
+    font-size: 0.6875rem;
     color: var(--muted);
-    line-height: 1.75;
-    margin: 0;
+    margin-top: 0.2rem;
+    width: 100%;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 1024px) {
+    .products-grid {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
   }
 
   @media (max-width: 640px) {
-    .product-gallery {
+    .products-grid {
       grid-template-columns: 1fr;
     }
   }
 </style>
-
-<script is:inline>
-  document.addEventListener('click', function (e) {
-    var btn = e.target.closest('.details-toggle');
-    if (!btn) return;
-    var target = document.getElementById(btn.dataset.target);
-    if (target) {
-      target.classList.toggle('open');
-      btn.textContent = target.classList.contains('open') ? 'Close' : btn.dataset.label || 'Details';
-    }
-  });
-  // Store original labels
-  document.querySelectorAll('.details-toggle').forEach(function (btn) {
-    btn.dataset.label = btn.textContent;
-  });
-</script>

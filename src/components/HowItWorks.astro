@@ -6,81 +6,171 @@ interface Props {
 }
 
 const { lang } = Astro.props;
+
+const steps = [
+  {
+    num: '01',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`,
+    titleKey: 'how.s1',
+    descKey: 'how.s1d',
+  },
+  {
+    num: '02',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
+    titleKey: 'how.s2',
+    descKey: 'how.s2d',
+  },
+  {
+    num: '03',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
+    titleKey: 'how.s3',
+    descKey: 'how.s3d',
+  },
+];
 ---
 
-<section id="how" style="padding:clamp(3rem,7vw,5rem) clamp(1.25rem,4vw,3rem);border-bottom:1px solid var(--rule)">
-  <div style="max-width:78rem;margin:0 auto">
+<section id="how" class="section-pad" style="border-bottom: 1px solid var(--border); background: var(--surface);">
+  <div class="container">
     <div class="sx rise"><b></b> <span>{t(lang, 'how.section')}</span></div>
-    <h2 class="h-section rise" style="margin-top:.75rem">{t(lang, 'how.heading')}</h2>
+    <h2 class="h-section rise" style="margin-top: 0.75rem;">{t(lang, 'how.heading')}</h2>
 
-    <div class="how-rows">
-      <div class="how-row rise">
-        <span class="how-num">01</span>
-        <div class="how-content">
-          <h3 class="how-title">{t(lang, 'how.s1')}</h3>
-          <p class="how-desc">{t(lang, 'how.s1d')}</p>
-        </div>
-      </div>
+    <div class="how-timeline">
+      {steps.map((step, i) => (
+        <div class="how-step rise">
+          <!-- Step number + connector -->
+          <div class="step-track">
+            <div class="step-bubble">
+              <span class="step-num">{step.num}</span>
+            </div>
+            {i < steps.length - 1 && <div class="step-connector"></div>}
+          </div>
 
-      <div class="how-row rise">
-        <span class="how-num">02</span>
-        <div class="how-content">
-          <h3 class="how-title">{t(lang, 'how.s2')}</h3>
-          <p class="how-desc">{t(lang, 'how.s2d')}</p>
+          <!-- Content -->
+          <div class="step-card card-glass">
+            <div class="step-icon" set:html={step.icon} />
+            <h3 class="step-title">{t(lang, step.titleKey)}</h3>
+            <p class="step-desc">{t(lang, step.descKey)}</p>
+          </div>
         </div>
-      </div>
-
-      <div class="how-row rise">
-        <span class="how-num">03</span>
-        <div class="how-content">
-          <h3 class="how-title">{t(lang, 'how.s3')}</h3>
-          <p class="how-desc">{t(lang, 'how.s3d')}</p>
-        </div>
-      </div>
+      ))}
     </div>
   </div>
 </section>
 
 <style>
-  .how-rows {
-    margin-top: 2rem;
-  }
-
-  .how-row {
+  .how-timeline {
     display: grid;
-    grid-template-columns: 3rem 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--rule);
-    align-items: start;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-top: 2.5rem;
+    position: relative;
   }
 
-  .how-row:first-child {
-    border-top: 1px solid var(--rule);
+  /* ─── Step ─── */
+  .how-step {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-right: 1.5rem;
+    position: relative;
   }
 
-  .how-num {
+  .how-step:last-child { padding-right: 0; }
+
+  /* ─── Track (bubble + line) ─── */
+  .step-track {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .step-bubble {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px var(--glow);
+    z-index: 1;
+  }
+
+  .step-num {
     font-family: var(--mono);
-    font-size: 0.875rem;
     font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.14em;
+    font-size: 0.75rem;
+    color: #000;
+    letter-spacing: 0.05em;
   }
 
-  .how-title {
+  .step-connector {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-accent), var(--border));
+    margin-left: -1px;
+  }
+
+  /* ─── Step Card ─── */
+  .step-card {
+    padding: 1.25rem;
+    flex: 1;
+    margin-right: 1.5rem;
+  }
+
+  .how-step:last-child .step-card { margin-right: 0; }
+
+  .step-icon {
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    opacity: 0.85;
+  }
+
+  .step-title {
     font-family: var(--display);
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--ink);
-    margin: 0 0 0.25rem;
+    margin-bottom: 0.4rem;
   }
 
-  .how-desc {
-    font-family: var(--body);
-    font-size: 0.875rem;
+  .step-desc {
+    font-size: 0.85rem;
     color: var(--muted);
-    margin: 0;
     line-height: 1.65;
-    max-width: 48ch;
+    margin: 0;
+  }
+
+  /* ─── Mobile: vertical ─── */
+  @media (max-width: 768px) {
+    .how-timeline {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .how-step {
+      flex-direction: row;
+      padding-right: 0;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .step-track {
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .step-connector {
+      width: 1px;
+      height: 100%;
+      min-height: 40px;
+      background: linear-gradient(180deg, var(--border-accent), var(--border));
+      margin-left: 0;
+      margin-top: -1px;
+    }
+
+    .step-card { margin-right: 0; }
   }
 </style>

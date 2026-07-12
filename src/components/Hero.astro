@@ -9,188 +9,369 @@ const { lang } = Astro.props;
 ---
 
 <section class="hero" id="hero">
-  <div class="hero-bg">
-    <img src="/images/hero/hero-bg.svg" alt="" aria-hidden="true" loading="eager" />
-  </div>
+  <!-- Animated grid background -->
+  <div class="hero-grid" aria-hidden="true"></div>
+  <!-- Amber glow orb -->
+  <div class="hero-orb" aria-hidden="true"></div>
+
   <div class="hero-inner">
+    <!-- Top eyebrow -->
+    <div class="rise" style="margin-bottom: 1.5rem;">
+      <span class="eyebrow">
+        <span class="eyebrow-dot"></span>
+        {t(lang, 'hero.eyebrow')}
+      </span>
+    </div>
+
+    <!-- Main content grid -->
     <div class="hero-content">
       <div class="hero-text">
-        <h1 class="h-display rise">{t(lang, 'hero.heading')}</h1>
-        <div class="hero-rule rise"></div>
-        <p class="lede rise" style="margin-top:1rem">{t(lang, 'hero.sub')}</p>
+        <h1 class="h-display rise hero-headline">
+          {t(lang, 'hero.heading')}
+        </h1>
 
-        <div class="rise" style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.5rem">
-          <a class="btn" href="#products">{t(lang, 'hero.cta')}</a>
-          <a class="btn btn--ghost" href="#pricing">{t(lang, 'hero.see')}</a>
+        <p class="lede rise" style="margin-top: 1.25rem; font-size: 1.1rem;">
+          {t(lang, 'hero.sub')}
+        </p>
+
+        <div class="rise hero-actions">
+          <a class="btn btn--primary" href={`/${lang}/auth/signin`}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+            {t(lang, 'hero.cta')}
+          </a>
+          <a class="btn btn--ghost" href={`#pricing`}>
+            {t(lang, 'hero.see')}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Trust pills -->
+        <div class="rise trust-row">
+          <div class="trust-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Instant DNS
+          </div>
+          <div class="trust-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Free SSL
+          </div>
+          <div class="trust-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            No Credit Card
+          </div>
+          <div class="trust-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            GitHub Ready
+          </div>
         </div>
       </div>
+
+      <!-- Terminal Visual -->
       <div class="hero-visual rise">
-        <img src="/images/dns.png" alt="DNS automation illustration" class="hero-dns-img" />
-      </div>
-    </div>
+        <div class="terminal-card">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+            </div>
+            <span class="terminal-title">terminal</span>
+            <div style="width: 42px;"></div>
+          </div>
+          <div class="terminal-body">
+            <pre class="terminal-code"><span class="t-dim">$</span> <span class="t-cmd">myanmardev</span> deploy <span class="t-flag">--subdomain</span> <span class="t-val">yourname</span>
+<span class="t-arrow">❯</span> Checking availability<span class="t-dots">...</span>   <span class="t-ok">✓ free</span>
+<span class="t-arrow">❯</span> Provisioning DNS<span class="t-dots">...</span>       <span class="t-ok">✓ done</span>
+<span class="t-arrow">❯</span> SSL certificate<span class="t-dots">...</span>       <span class="t-ok">✓ ready</span>
+<span class="t-arrow">❯</span> Propagating<span class="t-dots">...</span>           <span class="t-ok">✓ live</span>
 
-    <div class="hero-terminal rise">
-      <div class="term">
-        <div class="bar">
-          <span style="font-family:var(--mono);font-size:0.625rem;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase">terminal</span>
+<span class="t-success">🚀 yourname.myanmardev.com</span>
+<span class="t-dim">   Deployed in 28s · SSL secured</span></pre>
+          </div>
         </div>
-        <pre><span class="c">$</span> <span class="g">myanmardev</span> deploy <span class="y">--subdomain</span> yourname
-<span class="c">→</span> DNS check... <span class="g">available ✓</span>
-<span class="c">→</span> SSL provision... <span class="g">done ✓</span>
-<span class="c">→</span> Propagating... <span class="g">live ✓</span>
-<span class="c">→</span> <span class="g">yourname.myanmardev.com</span> <span class="c">(30s)</span></pre>
+
+        <!-- Floating stat badges -->
+        <div class="stat-badge stat-badge--tl rise">
+          <div class="stat-badge-icon">⚡</div>
+          <div>
+            <div class="stat-badge-num">30s</div>
+            <div class="stat-badge-label">Deploy time</div>
+          </div>
+        </div>
+        <div class="stat-badge stat-badge--br rise">
+          <div class="stat-badge-icon">🔒</div>
+          <div>
+            <div class="stat-badge-num">99.9%</div>
+            <div class="stat-badge-label">Uptime SLA</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Trust signals -->
-    <div class="trust-row rise">
-      <div class="trust-item">
-        <img src="/images/icons/trust-instant.svg" alt="" width="20" height="20" />
-        <span>Instant Setup</span>
-      </div>
-      <div class="trust-item">
-        <img src="/images/icons/trust-secure.svg" alt="" width="20" height="20" />
-        <span>SSL Secured</span>
-      </div>
-      <div class="trust-item">
-        <img src="/images/icons/trust-automated.svg" alt="" width="20" height="20" />
-        <span>Fully Automated</span>
-      </div>
-      <div class="trust-item">
-        <img src="/images/icons/trust-nocard.svg" alt="" width="20" height="20" />
-        <span>No Card Needed</span>
-      </div>
-    </div>
+    <!-- Footnote -->
+    <p class="rise hero-footnote">{t(lang, 'hero.footnote')}</p>
   </div>
 </section>
 
 <style>
   .hero {
     position: relative;
-    padding: clamp(4rem, 12vh, 7rem) clamp(1.25rem, 4vw, 3rem);
-    border-bottom: 1px solid var(--rule);
+    padding: clamp(5rem, 13vh, 8rem) clamp(1.25rem, 4vw, 3rem) clamp(4rem, 10vh, 6rem);
+    border-bottom: 1px solid var(--border);
     overflow: hidden;
+    isolation: isolate;
   }
 
-  .hero-bg {
+  /* ─── Animated Grid Background ─── */
+  .hero-grid {
     position: absolute;
     inset: 0;
     z-index: 0;
-    opacity: 0.06;
     pointer-events: none;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, rgba(0,0,0,0.7) 0%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, rgba(0,0,0,0.7) 0%, transparent 100%);
+    animation: grid-fade 8s ease-in-out infinite alternate;
   }
 
-  .hero-bg img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  @keyframes grid-fade {
+    0%   { opacity: 0.4; }
+    100% { opacity: 0.8; }
+  }
+
+  /* ─── Amber Orb ─── */
+  .hero-orb {
+    position: absolute;
+    top: -20%;
+    right: 5%;
+    width: clamp(400px, 50vw, 700px);
+    height: clamp(400px, 50vw, 700px);
+    background: radial-gradient(circle, rgba(245,158,11,0.12) 0%, rgba(245,158,11,0.04) 40%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+    animation: orb-pulse 6s ease-in-out infinite alternate;
+  }
+
+  @keyframes orb-pulse {
+    0%   { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 1;   transform: scale(1.08); }
   }
 
   .hero-inner {
     position: relative;
     z-index: 1;
-    max-width: 78rem;
+    max-width: 80rem;
     margin: 0 auto;
   }
 
+  /* ─── Eyebrow ─── */
+  .eyebrow-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+
+  /* ─── Content Grid ─── */
   .hero-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    gap: 3rem;
     align-items: center;
   }
 
-  .hero-visual {
+  /* ─── Headline ─── */
+  .hero-headline {
+    background: linear-gradient(135deg, var(--ink) 0%, var(--ink-2) 40%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ─── Actions ─── */
+  .hero-actions {
     display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .hero-dns-img {
-    max-width: 100%;
-    height: auto;
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-  }
-
-  .hero-rule {
-    width: clamp(3rem, 8vw, 5rem);
-    height: 1px;
-    background: var(--accent);
-    margin-top: 1rem;
-  }
-
-  .hero-terminal {
+    gap: 0.75rem;
+    flex-wrap: wrap;
     margin-top: 2rem;
-    max-width: 580px;
   }
 
-  .hero-terminal .term {
-    border: 1px solid var(--rule);
+  .btn--primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+    border-color: transparent;
+    box-shadow: 0 4px 24px var(--glow);
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+  .btn--primary:hover {
+    background: linear-gradient(135deg, var(--accent-light), var(--accent));
+    box-shadow: 0 6px 32px var(--glow-strong);
   }
 
-  .hero-terminal .term .bar {
-    border-bottom: 1px solid var(--rule);
-    padding: 0.625rem 1rem;
-  }
-
-  .hero-terminal .term pre {
-    font-size: 0.75rem;
-    line-height: 1.9;
-    padding: 1rem;
-    background: var(--ink);
-    color: color-mix(in srgb, var(--base) 80%, transparent);
-  }
-
-  .hero-terminal .term .c { color: var(--muted); }
-  .hero-terminal .term .g { color: var(--accent); }
-  .hero-terminal .term .y { color: #f59e0b; }
-
+  /* ─── Trust Pills ─── */
   .trust-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--rule);
+    gap: 0.5rem;
+    margin-top: 1.75rem;
   }
 
-  .trust-item {
-    display: flex;
+  .trust-pill {
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
     font-family: var(--mono);
-    font-size: 0.6875rem;
+    font-size: 0.625rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.08em;
     color: var(--muted);
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .trust-pill:hover {
+    border-color: rgba(34,197,94,0.3);
+    color: var(--ink-2);
   }
 
-  .trust-item img {
-    display: block;
-    width: 20px;
-    height: 20px;
+  /* ─── Terminal Card ─── */
+  .hero-visual {
+    position: relative;
   }
 
-  @media (max-width: 640px) {
+  .terminal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px var(--border);
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .terminal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+
+  .terminal-dots { display: flex; gap: 6px; align-items: center; }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-red    { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green  { background: #28c840; }
+
+  .terminal-title {
+    font-family: var(--mono);
+    font-size: 0.625rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .terminal-body {
+    padding: 1.25rem 1.25rem 1.5rem;
+    background: #0d0d12;
+  }
+
+  .terminal-code {
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    line-height: 1.9;
+    color: #c9d1d9;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .t-dim    { color: #6b7280; }
+  .t-cmd    { color: #7dd3fc; font-weight: 600; }
+  .t-flag   { color: #a78bfa; }
+  .t-val    { color: var(--accent); font-weight: 600; }
+  .t-arrow  { color: var(--accent); }
+  .t-ok     { color: #22c55e; font-weight: 600; }
+  .t-dots   { color: #6b7280; }
+  .t-success {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  /* ─── Floating Stat Badges ─── */
+  .stat-badge {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.9rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 16px var(--glow);
+    backdrop-filter: blur(8px);
+  }
+
+  .stat-badge--tl { top: -16px; left: -20px; }
+  .stat-badge--br { bottom: -16px; right: -20px; }
+
+  .stat-badge-icon { font-size: 1.25rem; line-height: 1; }
+  .stat-badge-num  {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-badge-label {
+    font-family: var(--mono);
+    font-size: 0.5625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ─── Footnote ─── */
+  .hero-footnote {
+    margin-top: 3rem;
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 900px) {
     .hero-content {
       grid-template-columns: 1fr;
+      gap: 2.5rem;
     }
-
-    .hero-visual {
-      order: -1;
-    }
-
-    .trust-row {
-      gap: 1rem;
-    }
+    .stat-badge--tl { top: -12px; left: 0; }
+    .stat-badge--br { bottom: -12px; right: 0; }
   }
 
   @media (max-width: 480px) {
-    .hero-terminal .term pre {
-      font-size: 0.625rem;
-      padding: 0.75rem;
-    }
+    .hero-actions { flex-direction: column; }
+    .hero-actions .btn { justify-content: center; }
+    .terminal-code { font-size: 0.6875rem; }
+    .stat-badge { display: none; }
   }
 </style>

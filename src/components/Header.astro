@@ -12,38 +12,49 @@ interface Props {
 const { lang } = Astro.props;
 ---
 
-<header class="site-header">
-  <a href="/" class="logo">
-    <img src="/images/logo/myanmardev-icon.svg" alt="myanmardev.com" width="24" height="24" class="logo-icon" />
-    <img src="/images/logo/myanmardev-logo.svg" alt="myanmardev.com" class="logo-full" />
-    <span class="logo-text"><span style="color:var(--accent)">myanmardev</span>.com</span>
-  </a>
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+    <!-- Logo -->
+    <a href={`/${lang}/`} class="logo" aria-label="myanmardev.com home">
+      <div class="logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" opacity="0.9"/>
+          <path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+          <path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.8"/>
+        </svg>
+      </div>
+      <span class="logo-text">
+        <span class="logo-brand">myanmardev</span><span class="logo-tld">.com</span>
+      </span>
+    </a>
 
-  <nav class="desktop-nav" id="tg-links">
-    <a href="#hero">{t(lang, 'nav.home')}</a>
-    <a href="#products">{t(lang, 'nav.products')}</a>
-    <a href="#pricing">{t(lang, 'nav.pricing')}</a>
-  </nav>
+    <!-- Desktop Nav -->
+    <nav class="desktop-nav" aria-label="Main navigation">
+      <a href={`/${lang}/#products`} class="nav-link">{t(lang, 'nav.products')}</a>
+      <a href={`/${lang}/#pricing`} class="nav-link">{t(lang, 'nav.pricing')}</a>
+      <a href={`/${lang}/dashboard`} class="nav-link">{t(lang, 'nav.myBusiness')}</a>
+    </nav>
 
-  <div class="controls">
-    <TokenBalance client:load />
-    <LanguageSwitcher currentLang={lang} />
-    <ThemeToggle />
-    <AuthButton client:load />
-    <button class="hamburger" id="hamburger-btn" aria-label={t(lang, 'nav.menu')} aria-expanded="false">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
-      </svg>
-    </button>
+    <!-- Controls -->
+    <div class="controls">
+      <TokenBalance client:load />
+      <LanguageSwitcher currentLang={lang} />
+      <ThemeToggle />
+      <AuthButton client:load />
+      <button class="hamburger" id="hamburger-btn" aria-label={t(lang, 'nav.menu')} aria-expanded="false" aria-controls="mobile-nav">
+        <span class="ham-line"></span>
+        <span class="ham-line"></span>
+        <span class="ham-line"></span>
+      </button>
+    </div>
   </div>
 
-  <nav class="mobile-nav" id="mobile-nav">
-    <a href="#hero">{t(lang, 'nav.home')}</a>
-    <a href="#products">{t(lang, 'nav.products')}</a>
-    <a href="#pricing">{t(lang, 'nav.pricing')}</a>
-    <div class="mobile-nav-controls">
+  <!-- Mobile Nav -->
+  <nav class="mobile-nav" id="mobile-nav" aria-hidden="true">
+    <a href={`/${lang}/#products`} class="mobile-link">{t(lang, 'nav.products')}</a>
+    <a href={`/${lang}/#pricing`} class="mobile-link">{t(lang, 'nav.pricing')}</a>
+    <a href={`/${lang}/dashboard`} class="mobile-link">{t(lang, 'nav.myBusiness')}</a>
+    <div class="mobile-controls">
       <LanguageSwitcher currentLang={lang} />
       <ThemeToggle />
     </div>
@@ -54,150 +65,172 @@ const { lang } = Astro.props;
   .site-header {
     position: sticky;
     top: 0;
-    z-index: 40;
+    z-index: 50;
+    background: color-mix(in srgb, var(--base) 80%, transparent);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  .site-header.scrolled {
+    background: color-mix(in srgb, var(--base) 95%, transparent);
+    border-bottom-color: var(--border);
+  }
+
+  .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    max-width: 80rem;
+    margin: 0 auto;
     padding: 0 clamp(1.25rem, 4vw, 3rem);
-    background: var(--base);
-    border-bottom: 1px solid var(--rule);
-    min-height: 3rem;
+    min-height: 3.5rem;
   }
 
+  /* ─── Logo ─── */
   .logo {
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: -0.02em;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     flex-shrink: 0;
-    padding: 0.75rem 0;
+    padding: 0.5rem 0;
+    transition: opacity 0.15s ease;
   }
+  .logo:hover { opacity: 0.85; color: inherit; }
 
-  .logo-icon {
-    display: block;
-    width: 24px;
-    height: 24px;
-  }
-
-  .logo-full {
-    display: block;
-    height: 24px;
-    width: auto;
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+    color: #000;
+    flex-shrink: 0;
+    box-shadow: 0 0 16px var(--glow);
   }
 
   .logo-text {
-    display: none;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1;
   }
+  .logo-brand { color: var(--ink); }
+  .logo-tld   { color: var(--accent); }
 
-  /* Show text logo when images fail or for fallback */
-  .logo-icon[src=""] ~ .logo-text,
-  .logo-full[src=""] ~ .logo-text {
-    display: inline;
-  }
-
+  /* ─── Desktop Nav ─── */
   .desktop-nav {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    font-family: var(--mono);
-    font-size: 0.6875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--muted);
+    gap: 0.25rem;
   }
 
-  .desktop-nav a {
-    transition: color 0.15s ease;
+  .nav-link {
     position: relative;
-    padding: 0.75rem 0;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--muted);
+    border-radius: 6px;
+    transition: color 0.15s ease, background 0.15s ease;
   }
-
-  .desktop-nav a:hover {
+  .nav-link:hover {
     color: var(--ink);
+    background: var(--surface-2);
   }
 
-  .desktop-nav a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: var(--accent);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.2s ease;
-  }
-
-  .desktop-nav a:hover::after {
-    transform: scaleX(1);
-  }
-
+  /* ─── Controls ─── */
   .controls {
     display: flex;
     align-items: center;
     gap: 0.5rem;
   }
 
+  /* ─── Hamburger ─── */
   .hamburger {
     display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    width: 36px;
+    height: 36px;
     background: transparent;
-    border: none;
+    border: 1px solid var(--border);
+    border-radius: 7px;
     color: var(--ink);
     cursor: pointer;
-    padding: 0.25rem;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .hamburger:hover {
+    background: var(--surface-2);
+    border-color: var(--border-accent);
   }
 
+  .ham-line {
+    display: block;
+    width: 14px;
+    height: 1.5px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform 0.25s ease, opacity 0.25s ease, width 0.25s ease;
+  }
+
+  .hamburger[aria-expanded="true"] .ham-line:nth-child(1) {
+    transform: translateY(5.5px) rotate(45deg);
+  }
+  .hamburger[aria-expanded="true"] .ham-line:nth-child(2) {
+    opacity: 0; width: 0;
+  }
+  .hamburger[aria-expanded="true"] .ham-line:nth-child(3) {
+    transform: translateY(-5.5px) rotate(-45deg);
+  }
+
+  /* ─── Mobile Nav ─── */
   .mobile-nav {
     display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
     flex-direction: column;
-    gap: 0;
-    background: var(--base);
-    border-bottom: 1px solid var(--rule);
-    padding: 0.5rem 0;
+    border-top: 1px solid var(--border);
+    padding: 0.75rem 0;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+  }
+  .mobile-nav.open {
+    max-height: 400px;
   }
 
-  .mobile-nav a {
+  .mobile-link {
     display: block;
     padding: 0.75rem clamp(1.25rem, 4vw, 3rem);
+    font-size: 0.875rem;
+    font-weight: 500;
     color: var(--muted);
-    text-decoration: none;
-    font-family: var(--mono);
-    font-size: 0.6875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .mobile-link:hover {
+    color: var(--ink);
+    background: var(--surface-2);
   }
 
-  .mobile-nav-controls {
+  .mobile-controls {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem clamp(1.25rem, 4vw, 3rem);
-    border-top: 1px solid var(--rule);
+    border-top: 1px solid var(--border);
     margin-top: 0.25rem;
   }
 
-  .mobile-nav.open {
-    display: flex;
-  }
-
-  @media (max-width: 720px) {
-    .desktop-nav {
-      display: none;
-    }
-
-    .hamburger {
-      display: inline-flex;
-      align-items: center;
-    }
+  @media (max-width: 768px) {
+    .desktop-nav { display: none; }
+    .hamburger   { display: flex; }
+    .mobile-nav  { display: flex; }
   }
 </style>
 
@@ -205,18 +238,28 @@ const { lang } = Astro.props;
   (function () {
     var btn = document.getElementById('hamburger-btn');
     var nav = document.getElementById('mobile-nav');
+    var header = document.getElementById('site-header');
     if (!btn || !nav) return;
 
     btn.addEventListener('click', function () {
       var isOpen = nav.classList.toggle('open');
       btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      nav.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
     });
 
     nav.addEventListener('click', function (e) {
       if (e.target.tagName === 'A') {
         nav.classList.remove('open');
         btn.setAttribute('aria-expanded', 'false');
+        nav.setAttribute('aria-hidden', 'true');
       }
     });
+
+    // Scrolled state
+    if (header) {
+      window.addEventListener('scroll', function () {
+        header.classList.toggle('scrolled', window.scrollY > 10);
+      }, { passive: true });
+    }
   })();
 </script>

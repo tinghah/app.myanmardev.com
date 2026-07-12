@@ -20,6 +20,7 @@
   "products": {
     "section": "/ products",
     "heading": "What We Ship",
+    "sub": "Infrastructure-grade tools for Myanmar developers. Built to last.",
     "p1": {
       "name": "Subdomain",
       "desc": "yourname.myanmardev.com — instant DNS, free SSL, zero config",
@@ -161,19 +162,19 @@
   "testimonials": {
     "section": "/ signal",
     "heading": "Trusted by Myanmar Devs",
-    "sub": "Real developers. Real deployments.",
+    "sub": "Real developers. Real deployments. Real satisfaction.",
     "t1": {
-      "q": "myanmardev.com made deploying my portfolio site incredibly fast. No config headaches.",
+      "q": "myanmardev.com made deploying my portfolio site incredibly fast. No config headaches — just pick a name, pay tokens, and it's live.",
       "a": "Aung Khant",
       "role": "Full-Stack Developer, Yangon"
     },
     "t2": {
-      "q": "The token system is simple and affordable. I got my subdomain live in under a minute.",
+      "q": "The token system is transparent and affordable. I got my subdomain pointing to Vercel in under 60 seconds. Incredible product.",
       "a": "Zin Mar Oo",
       "role": "Frontend Developer, Mandalay"
     },
     "t3": {
-      "q": "Finally a platform built for Myanmar devs. Great support and easy to use.",
+      "q": "Finally, a platform built for Myanmar developers. No VPN needed, MMK pricing, and it actually works. Highly recommended!",
       "a": "Hein Htet",
       "role": "Freelance Developer, Naypyidaw"
     }
