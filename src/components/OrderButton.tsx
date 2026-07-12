@@ -18,7 +18,7 @@ export default function OrderButton({ productName, tokenCost, productSlug }: Pro
   const [modal, setModal] = useState<ModalState>('closed');
   const [successMsg, setSuccessMsg] = useState(false);
 
-  const tokenBalance = profile?.tokenBalance ?? 0;
+  const tokens = profile?.tokens ?? 0;
 
   const handleClick = () => {
     // 1. Check sign-in
@@ -28,7 +28,7 @@ export default function OrderButton({ productName, tokenCost, productSlug }: Pro
     }
 
     // 2. Check token balance
-    if (tokenBalance < tokenCost) {
+    if (tokens < tokenCost) {
       setModal('buyTokens');
       return;
     }

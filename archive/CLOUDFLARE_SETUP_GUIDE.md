@@ -114,7 +114,7 @@ See `GITHUB_SECRETS_GUIDE.md` for the full list of required variables.
 
 When an authenticated user creates a subdomain:
 
-1. User has enough tokens in their Firestore profile (`users/{uid}.tokenBalance`)
+1. User has enough tokens in their Firestore profile (`users/{uid}.tokens`)
 2. Tokens are deducted via `deductTokens()` in `src/lib/firestore.ts`
 3. A product order is created in Firestore (`orders` collection)
 4. The frontend calls the Worker's `/create` endpoint

@@ -198,7 +198,7 @@ export default function SubdomainBuilder() {
     }
 
     // Check if user has enough tokens
-    if (!profile || profile.tokenBalance < TOKEN_COST) {
+    if (!profile || profile.tokens < TOKEN_COST) {
       setShowBuyTokensModal(true);
       return;
     }
@@ -228,7 +228,7 @@ export default function SubdomainBuilder() {
       return;
     }
 
-    if (profile.tokenBalance < TOKEN_COST) {
+    if (profile.tokens < TOKEN_COST) {
       setShowBuyTokensModal(true);
       return;
     }
@@ -354,10 +354,10 @@ export default function SubdomainBuilder() {
             }}>
               <span style={{ color: 'var(--muted)' }}>Your balance:</span>
               <span style={{
-                color: profile.tokenBalance >= TOKEN_COST ? 'var(--accent)' : '#E8A33D',
+                color: profile.tokens >= TOKEN_COST ? 'var(--accent)' : '#E8A33D',
                 fontWeight: 700,
               }}>
-                🪙 {profile.tokenBalance} Tokens
+                🪙 {profile.tokens} Tokens
               </span>
             </div>
           ) : (
@@ -483,10 +483,10 @@ export default function SubdomainBuilder() {
             }}>
               <span style={{ color: 'var(--muted)' }}>Your Balance:</span>
               <span style={{
-                color: profile && profile.tokenBalance >= TOKEN_COST ? 'var(--accent)' : '#E8A33D',
+                color: profile && profile.tokens >= TOKEN_COST ? 'var(--accent)' : '#E8A33D',
                 fontWeight: 700,
               }}>
-                🪙 {profile?.tokenBalance || 0} Tokens
+                🪙 {profile?.tokens || 0} Tokens
               </span>
             </div>
           </div>

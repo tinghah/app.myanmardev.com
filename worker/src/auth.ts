@@ -96,12 +96,12 @@ export async function getUserTokens(env: Env, uid: string, authHeader: string): 
 
   const doc = await res.json() as {
     fields?: {
-      tokenBalance?: { integerValue?: string };
+      tokens?: { integerValue?: string };
       tokens?: { integerValue?: string };
     };
   };
   return parseInt(
-    doc.fields?.tokenBalance?.integerValue ||
+    doc.fields?.tokens?.integerValue ||
       doc.fields?.tokens?.integerValue ||
       '0',
   );
@@ -163,7 +163,7 @@ export async function deductTokens(
           document: `projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}`,
           fieldTransforms: [
             {
-              fieldPath: 'tokenBalance',
+              fieldPath: 'tokens',
               increment: { integerValue: (-amount).toString() }
             }
           ]

@@ -32,8 +32,8 @@ export default function PaymentModal({
   const exchangeRate = getExchangeRate();
   const priceUSD = tokenCost * 2.5;
   const priceMMK = Math.round(priceUSD * exchangeRate);
-  const tokenBalance = profile?.tokenBalance ?? 0;
-  const hasEnoughTokens = tokenBalance >= tokenCost;
+  const tokens = profile?.tokens ?? 0;
+  const hasEnoughTokens = tokens >= tokenCost;
 
   // ─── Focus trap & Escape key ─────────────────────────────────
   const handleKeyDown = useCallback(
@@ -312,7 +312,7 @@ export default function PaymentModal({
                     color: hasEnoughTokens ? 'var(--accent)' : '#E8A33D',
                   }}
                 >
-                  &#x1FA99; {tokenBalance} Tokens
+                  &#x1FA99; {tokens} Tokens
                 </div>
               </div>
             </div>
@@ -408,7 +408,7 @@ export default function PaymentModal({
                   marginBottom: '1rem',
                 }}
               >
-                Insufficient tokens. You need {tokenCost} tokens but have {tokenBalance}. Please buy
+                Insufficient tokens. You need {tokenCost} tokens but have {tokens}. Please buy
                 more tokens or choose another payment method.
               </div>
             )}

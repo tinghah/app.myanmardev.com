@@ -125,18 +125,18 @@ async function addTokensToUser(uid, tokens, env) {
     throw new Error('User profile not found');
   }
 
-  const currentBalance = profile.fields?.tokenBalance?.integerValue || 0;
+  const currentBalance = profile.fields?.tokens?.integerValue || 0;
   const newBalance = currentBalance + tokens;
 
   // Update the document
-  const url = `https://firestore.googleapis.com/v1/projects/${env.PUBLIC_FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}?key=${env.PUBLIC_FIREBASE_API_KEY}&updateMask.fieldPaths=tokenBalance`;
+  const url = `https://firestore.googleapis.com/v1/projects/${env.PUBLIC_FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}?key=${env.PUBLIC_FIREBASE_API_KEY}&updateMask.fieldPaths=tokens`;
 
   const response = await fetch(url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       fields: {
-        tokenBalance: { integerValue: newBalance },
+        tokens: { integerValue: newBalance },
       },
     }),
   });

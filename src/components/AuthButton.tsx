@@ -244,7 +244,7 @@ function UserMenu({ profile, user, onSignOut }: UserMenuProps) {
             color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '2px',
           }}>
             <span style={{ opacity: 0.7 }}>🪙</span>
-            {profile.tokenBalance ?? 0}
+            {profile.tokens ?? 0}
           </div>
         )}
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -291,7 +291,7 @@ function UserMenu({ profile, user, onSignOut }: UserMenuProps) {
                   fontFamily: 'var(--mono)', fontSize: '0.6875rem',
                   color: 'var(--accent)', fontWeight: 700,
                 }}>
-                  🪙 {profile.tokenBalance ?? 0} Tokens
+                  🪙 {profile.tokens ?? 0} Tokens
                 </div>
               )}
             </div>

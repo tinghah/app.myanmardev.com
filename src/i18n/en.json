@@ -211,7 +211,7 @@
     "profile": {
       "title": "Profile",
       "memberSince": "Member since",
-      "tokenBalance": "Token Balance"
+      "tokens": "Token Balance"
     },
     "products": {
       "title": "My Products",

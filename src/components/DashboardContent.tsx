@@ -107,7 +107,7 @@ export default function DashboardContent() {
             color: 'var(--accent)',
             marginBottom: '0.25rem',
           }}>
-            {profile?.tokenBalance || 0}
+            {profile?.tokens || 0}
           </div>
           <div style={{
             fontFamily: 'var(--mono)',

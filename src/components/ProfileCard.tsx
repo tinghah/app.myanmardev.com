@@ -185,7 +185,7 @@ export default function ProfileCard() {
               color: 'var(--accent)',
               lineHeight: 1,
             }}>
-              {profile.tokenBalance}
+              {profile.tokens}
             </div>
             <div style={{
               fontFamily: 'var(--mono)',

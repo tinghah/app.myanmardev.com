@@ -10,7 +10,8 @@ export interface UserProfile {
   photoURL: string;
   provider: 'google' | 'github' | 'google, github' | 'unknown';
   githubUsername?: string;
-  tokenBalance: number;
+  tokens: number;
+  isAdmin?: boolean;
   createdAt: Timestamp;
   lastLoginAt: Timestamp;
 }
@@ -87,7 +88,7 @@ export async function createOrUpdateUserProfile(user: any): Promise<UserProfile>
       displayName: user.displayName || '',
       photoURL: user.photoURL || '',
       provider: provider,
-      tokenBalance: 0,
+      tokens: 0,
       createdAt: now,
       lastLoginAt: now,
     };
@@ -121,7 +122,7 @@ export async function updateTokenBalance(uid: string, amount: number): Promise<v
   const db = getDB();
   const userRef = doc(db, 'users', uid);
   await updateDoc(userRef, {
-    tokenBalance: increment(amount),
+    tokens: increment(amount),
   });
 }
 
@@ -130,7 +131,7 @@ export async function updateTokenBalance(uid: string, amount: number): Promise<v
  */
 export async function deductTokens(uid: string, amount: number): Promise<boolean> {
   const profile = await getUserProfile(uid);
-  if (!profile || profile.tokenBalance < amount) {
+  if (!profile || profile.tokens < amount) {
     return false;
   }
   await updateTokenBalance(uid, -amount);

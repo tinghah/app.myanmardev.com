@@ -12,7 +12,7 @@ service cloud.firestore {
     // =========================================================================
     // Created on first sign-in (GitHub or Google OAuth).
     // Fields: uid, email, displayName, photoURL, provider, githubUsername,
-    //         tokenBalance (number), createdAt, lastLoginAt
+    //         tokens (number), createdAt, lastLoginAt
     //
     // Security:
     //   - Users can read and update ONLY their own profile
@@ -24,7 +24,7 @@ service cloud.firestore {
       allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
       allow create: if request.auth != null;
       allow update: if request.auth != null && request.auth.uid == userId &&
-        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['tokenBalance', 'tokens', 'isAdmin']));
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['tokens', 'tokens', 'isAdmin']));
       allow update: if isAdmin();
     }
 
@@ -122,7 +122,7 @@ service cloud.firestore {
     //   1. Validates the code exists, is not expired, and has uses remaining
     //   2. Checks the user hasn't already redeemed it
     //   3. Atomically increments currentUses, adds userId to usedBy array
-    //   4. Adds tokenAmount to the user's tokenBalance
+    //   4. Adds tokenAmount to the user's tokens
     //   5. Records the redemption in userRedeems collection
     //
     // Security:

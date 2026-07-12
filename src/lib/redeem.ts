@@ -74,7 +74,7 @@ export async function redeemCode(userId: string, code: string): Promise<RedeemRe
     // 2. Add tokens to user balance
     const userRef = doc(db, 'users', userId);
     await updateDoc(userRef, {
-      tokenBalance: increment(codeData.tokenAmount),
+      tokens: increment(codeData.tokenAmount),
     });
 
     // 3. Record the redemption

@@ -189,7 +189,7 @@ Instructor reacted ✅ — Chapter 4 unlocked.
 - **Token packages:** Starter (5/$2.50), Basic (10/$4.00), Pro (25/$8.00), Business (50/$12.00)
 - **Redeem codes:** Promo codes for free tokens — admin-created, single or multi-use, with expiry
 - **Order system:** Token purchase orders (pending/admin-approved) and product orders (instant completion)
-- **Key files:** `src/lib/orders.ts`, `src/lib/redeem.ts`, `src/components/BuyTokensModal.tsx`, `src/components/RedeemCodeModal.tsx`, `src/components/TokenBalance.tsx`, `src/components/OrderHistory.tsx`
+- **Key files:** `src/lib/orders.ts`, `src/lib/redeem.ts`, `src/components/BuyTokensModal.tsx`, `src/components/RedeemCodeModal.tsx`, `src/components/tokens.tsx`, `src/components/OrderHistory.tsx`
 
 ### Dual Authentication (Google + GitHub)
 - **Firebase Auth** with both Google and GitHub OAuth providers
@@ -226,7 +226,7 @@ myanmardev.com/
 │   │   ├── AuthGuard.tsx          (Route protection)
 │   │   ├── AuthGate.tsx           (Conditional rendering)
 │   │   ├── SignInModal.tsx         (Google + GitHub sign-in)
-│   │   ├── TokenBalance.tsx       (Token display widget)
+│   │   ├── tokens.tsx       (Token display widget)
 │   │   ├── BuyTokensModal.tsx     (Token purchase flow)
 │   │   ├── RedeemCodeModal.tsx    (Promo code redemption)
 │   │   ├── OrderHistory.tsx       (Order list with filters)

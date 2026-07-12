@@ -96,7 +96,7 @@ async function listUsers(env) {
       displayName: fields.displayName?.stringValue || '',
       provider: fields.provider?.stringValue || '',
       githubUsername: fields.githubUsername?.stringValue || '',
-      tokenBalance: fields.tokenBalance?.integerValue || 0,
+      tokens: fields.tokens?.integerValue || 0,
       createdAt: fields.createdAt?.timestampValue || '',
       lastLoginAt: fields.lastLoginAt?.timestampValue || '',
     };
@@ -119,7 +119,7 @@ async function main() {
     }
 
     // Sort by token balance (descending)
-    users.sort((a, b) => b.tokenBalance - a.tokenBalance);
+    users.sort((a, b) => b.tokens - a.tokens);
 
     // Display as table
     console.log('UID'.padEnd(28) + 'Email'.padEnd(32) + 'Provider'.padEnd(10) + 'Tokens'.padStart(8) + '  GitHub Username');
@@ -129,7 +129,7 @@ async function main() {
       const uid = user.uid.substring(0, 26).padEnd(28);
       const email = (user.email || 'N/A').substring(0, 30).padEnd(32);
       const provider = user.provider.padEnd(10);
-      const tokens = String(user.tokenBalance).padStart(8);
+      const tokens = String(user.tokens).padStart(8);
       const github = user.githubUsername ? `@${user.githubUsername}` : '';
 
       console.log(`${uid}${email}${provider}${tokens}  ${github}`);
@@ -137,13 +137,13 @@ async function main() {
 
     console.log('─'.repeat(100));
     console.log(`\nTotal: ${users.length} users`);
-    console.log(`Total tokens: ${users.reduce((sum, u) => sum + u.tokenBalance, 0)}`);
+    console.log(`Total tokens: ${users.reduce((sum, u) => sum + u.tokens, 0)}`);
 
     // Export to CSV if requested
     if (args.export) {
       const csvHeader = 'uid,email,display_name,provider,github_username,token_balance,created_at,last_login_at';
       const csvRows = users.map(u =>
-        `"${u.uid}","${u.email}","${u.displayName}","${u.provider}","${u.githubUsername}",${u.tokenBalance},"${u.createdAt}","${u.lastLoginAt}"`
+        `"${u.uid}","${u.email}","${u.displayName}","${u.provider}","${u.githubUsername}",${u.tokens},"${u.createdAt}","${u.lastLoginAt}"`
       );
       const csvContent = [csvHeader, ...csvRows].join('\n');
 
