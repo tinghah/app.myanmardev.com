@@ -76,6 +76,11 @@ export function initAuth() {
 
             // Mark body as signed-in for CSS auth gating
             document.body.setAttribute('data-auth', 'signed-in');
+            if (userProfile.isAdmin) {
+              document.body.setAttribute('data-admin', 'true');
+            } else {
+              document.body.removeAttribute('data-admin');
+            }
 
           } catch (e: any) {
             console.warn('[AuthStore] Failed to create/update profile:', e?.message || e);
@@ -103,6 +108,7 @@ export function initAuth() {
             error: null,
           });
           document.body.removeAttribute('data-auth');
+          document.body.removeAttribute('data-admin');
         }
       });
     } catch (e) {

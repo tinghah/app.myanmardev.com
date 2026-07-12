@@ -55,6 +55,14 @@ export default function DashboardContent() {
     );
   }
 
+  if (profile?.isAdmin) {
+    if (typeof window !== 'undefined') {
+      const lang = window.location.pathname.startsWith('/my') ? 'my' : 'en';
+      window.location.href = `/${lang}/admin`;
+    }
+    return null;
+  }
+
   return (
     <div style={{ marginTop: '2rem' }}>
       {/* Welcome Section */}

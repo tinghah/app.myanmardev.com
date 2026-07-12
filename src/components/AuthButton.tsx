@@ -284,7 +284,7 @@ function UserMenu({ profile, user, onSignOut }: UserMenuProps) {
               }}>
                 {profile?.email || user?.email}
               </div>
-              {profile && (
+              {profile && !profile.isAdmin && (
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: '0.35rem',
                   marginTop: '0.5rem',
@@ -298,9 +298,11 @@ function UserMenu({ profile, user, onSignOut }: UserMenuProps) {
 
             {/* Menu Items */}
             {[
-              { label: 'Dashboard', icon: '⚡', href: getDashboardPath() },
-              { label: 'Buy Tokens', icon: '🪙', href: getDashboardPath() + '#buy' },
-              { label: 'My Subdomains', icon: '🌐', href: getDashboardPath() + '#subdomains' },
+              ...(profile?.isAdmin ? [] : [
+                { label: 'Dashboard', icon: '⚡', href: getDashboardPath() },
+                { label: 'Buy Tokens', icon: '🪙', href: getDashboardPath() + '#buy' },
+                { label: 'My Subdomains', icon: '🌐', href: getDashboardPath() + '#subdomains' },
+              ]),
               ...(profile?.isAdmin ? [{ label: 'Admin Panel', icon: '⚙️', href: `/${getLangFromPath()}/admin` }] : []),
             ].map(({ label, icon, href }) => (
               <a

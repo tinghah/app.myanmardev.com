@@ -30,9 +30,10 @@ const { lang } = Astro.props;
 
     <!-- Desktop Nav -->
     <nav class="desktop-nav" aria-label="Main navigation">
-      <a href={`/${lang}/#products`} class="nav-link">{t(lang, 'nav.products')}</a>
-      <a href={`/${lang}/#pricing`} class="nav-link">{t(lang, 'nav.pricing')}</a>
-      <a href={`/${lang}/dashboard`} class="nav-link">{t(lang, 'nav.myBusiness')}</a>
+      <a href={`/${lang}/#products`} class="nav-link user-link">{t(lang, 'nav.products')}</a>
+      <a href={`/${lang}/#pricing`} class="nav-link user-link">{t(lang, 'nav.pricing')}</a>
+      <a href={`/${lang}/dashboard`} class="nav-link user-link">{t(lang, 'nav.myBusiness')}</a>
+      <a href={`/${lang}/admin`} class="nav-link admin-link" style="display: none;">Admin Panel</a>
     </nav>
 
     <!-- Controls -->
@@ -51,9 +52,10 @@ const { lang } = Astro.props;
 
   <!-- Mobile Nav -->
   <nav class="mobile-nav" id="mobile-nav" aria-hidden="true">
-    <a href={`/${lang}/#products`} class="mobile-link">{t(lang, 'nav.products')}</a>
-    <a href={`/${lang}/#pricing`} class="mobile-link">{t(lang, 'nav.pricing')}</a>
-    <a href={`/${lang}/dashboard`} class="mobile-link">{t(lang, 'nav.myBusiness')}</a>
+    <a href={`/${lang}/#products`} class="mobile-link user-link">{t(lang, 'nav.products')}</a>
+    <a href={`/${lang}/#pricing`} class="mobile-link user-link">{t(lang, 'nav.pricing')}</a>
+    <a href={`/${lang}/dashboard`} class="mobile-link user-link">{t(lang, 'nav.myBusiness')}</a>
+    <a href={`/${lang}/admin`} class="mobile-link admin-link" style="display: none;">Admin Panel</a>
     <div class="mobile-controls">
       <LanguageSwitcher currentLang={lang} />
       <ThemeToggle />
@@ -142,6 +144,18 @@ const { lang } = Astro.props;
   .nav-link:hover {
     color: var(--ink);
     background: var(--surface-2);
+  }
+
+  body[data-admin="true"] .user-link {
+    display: none !important;
+  }
+  body[data-admin="true"] .admin-link {
+    display: block !important;
+  }
+  @media (min-width: 769px) {
+    body[data-admin="true"] .admin-link.nav-link {
+      display: inline-block !important;
+    }
   }
 
   /* ─── Controls ─── */

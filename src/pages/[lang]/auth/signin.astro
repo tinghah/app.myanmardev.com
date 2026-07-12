@@ -316,7 +316,7 @@ const { lang } = Astro.params as { lang: Language };
 
 <script>
   import { getAuthInstance, getGoogleProvider, getGithubProvider } from '../../../lib/firebase';
-  import { createOrUpdateUserProfile } from '../../../lib/auth';
+  import { createOrUpdateUserProfile, isSuperAdmin } from '../../../lib/auth';
   import { signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 
   const btnGoogle = document.getElementById('btn-google') as HTMLButtonElement;
@@ -359,7 +359,11 @@ const { lang } = Astro.params as { lang: Language };
       if (user) {
         showSuccess();
         setTimeout(() => {
-          window.location.href = `/${getLang()}/dashboard`;
+          if (isSuperAdmin(user.email)) {
+            window.location.href = `/${getLang()}/admin`;
+          } else {
+            window.location.href = `/${getLang()}/dashboard`;
+          }
         }, 800);
       }
     });
@@ -386,7 +390,11 @@ const { lang } = Astro.params as { lang: Language };
         }
         showSuccess();
         setTimeout(() => {
-          window.location.href = `/${getLang()}/dashboard`;
+          if (isSuperAdmin(result.user.email)) {
+            window.location.href = `/${getLang()}/admin`;
+          } else {
+            window.location.href = `/${getLang()}/dashboard`;
+          }
         }, 600);
       }
     } catch (err: any) {
