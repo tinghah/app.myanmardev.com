@@ -87,19 +87,19 @@ export async function createOrUpdateUserProfile(user: any): Promise<UserProfile>
       provider: provider,
     };
     
-    // Ensure super admins always have isAdmin=true
-    if (isSuperAdmin(user.email) && !existing.isAdmin) {
-      updateData.isAdmin = true;
-    }
-
+    // DO NOT try to write isAdmin to Firestore during update, as security rules block it.
+    // Instead, we dynamically inject it in memory for super admins below.
     if (user.displayName) updateData.displayName = user.displayName;
     if (user.photoURL) updateData.photoURL = user.photoURL;
     if (githubUsername) updateData.githubUsername = githubUsername;
 
     await updateDoc(userRef, updateData);
 
-
-    return { ...existing, ...updateData };
+    const profileToReturn = { ...existing, ...updateData };
+    if (isSuperAdmin(user.email)) {
+      profileToReturn.isAdmin = true;
+    }
+    return profileToReturn;
   } else {
     // Create new user — assign fields explicitly to avoid any undefined
     const newProfile: Record<string, any> = {
@@ -131,7 +131,11 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   const userSnap = await getDoc(userRef);
 
   if (userSnap.exists()) {
-    return userSnap.data() as UserProfile;
+    const profile = userSnap.data() as UserProfile;
+    if (isSuperAdmin(profile.email)) {
+      profile.isAdmin = true;
+    }
+    return profile;
   }
   return null;
 }
