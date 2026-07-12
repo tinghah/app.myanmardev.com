@@ -1,0 +1,12 @@
+---
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'my' } }
+  ];
+}
+
+const { lang } = Astro.params;
+---
+
+<meta http-equiv="refresh" content={`0;url=/${lang}/admin/users`} />

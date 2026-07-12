@@ -1,0 +1,17 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import ChatPlaceholder from '../../../components/admin/ChatPlaceholder';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'my' } }
+  ];
+}
+
+const { lang } = Astro.params;
+---
+
+<AdminLayout title="User Chat" lang={lang}>
+  <ChatPlaceholder client:load />
+</AdminLayout>

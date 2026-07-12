@@ -1,0 +1,17 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import CodesManager from '../../../components/admin/CodesManager';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'my' } }
+  ];
+}
+
+const { lang } = Astro.params;
+---
+
+<AdminLayout title="Manage Redeem Codes" lang={lang}>
+  <CodesManager client:load />
+</AdminLayout>

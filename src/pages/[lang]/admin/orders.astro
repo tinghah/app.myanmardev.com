@@ -1,0 +1,17 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import OrdersTable from '../../../components/admin/OrdersTable';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'my' } }
+  ];
+}
+
+const { lang } = Astro.params;
+---
+
+<AdminLayout title="Manage Orders" lang={lang}>
+  <OrdersTable client:load />
+</AdminLayout>

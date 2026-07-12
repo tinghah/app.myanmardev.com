@@ -1,0 +1,43 @@
+---
+import Layout from './Layout.astro';
+import AdminSidebar from '../components/admin/AdminSidebar';
+
+interface Props {
+  title: string;
+  lang: string;
+}
+
+const { title, lang } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<Layout title={`${title} | Admin`} lang={lang}>
+  <!-- Admin Guard Script -->
+  <script>
+    import { $authState } from '../stores/authStore';
+    
+    // Subscribe to auth state changes to protect the route
+    $authState.subscribe((state) => {
+      if (!state.loading) {
+        if (!state.isSignedIn || !state.profile?.isAdmin) {
+          // If they aren't logged in, or aren't an admin, redirect them
+          // to the standard user dashboard or home.
+          window.location.href = `/${document.documentElement.lang}/dashboard`;
+        }
+      }
+    });
+  </script>
+
+  <div style="display: flex; min-height: 100vh; background: var(--base);">
+    <AdminSidebar client:load currentPath={currentPath} lang={lang} />
+    
+    <main style="flex: 1; padding: 2rem; overflow-y: auto; max-height: 100vh;">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <h1 style="font-family: var(--display); font-size: 2rem; margin-bottom: 2rem; color: var(--ink);">
+          {title}
+        </h1>
+        <slot />
+      </div>
+    </main>
+  </div>
+</Layout>

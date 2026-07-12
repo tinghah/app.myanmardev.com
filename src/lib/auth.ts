@@ -16,6 +16,18 @@ export interface UserProfile {
   lastLoginAt: Timestamp;
 }
 
+// ─── Super Admin ──────────────────────────────────────────
+
+const SUPER_ADMINS = [
+  'myanmardevadmin@gmail.com',
+  'ting.pouchen@gmail.com'
+];
+
+export function isSuperAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return SUPER_ADMINS.includes(email.toLowerCase());
+}
+
 // ─── Detect Provider from Firebase User ─────────────────
 
 function detectProvider(user: any): 'google' | 'github' | 'google, github' | 'unknown' {
@@ -67,18 +79,26 @@ export async function createOrUpdateUserProfile(user: any): Promise<UserProfile>
   const githubUsername = (provider === 'github' || provider === 'google, github') ? extractGithubUsername(user) : null;
 
   if (userSnap.exists()) {
+    const existing = userSnap.data() as UserProfile;
+    
     // Update only safe, non-undefined fields
     const updateData: Record<string, any> = {
       lastLoginAt: now,
       provider: provider,
     };
+    
+    // Ensure super admins always have isAdmin=true
+    if (isSuperAdmin(user.email) && !existing.isAdmin) {
+      updateData.isAdmin = true;
+    }
+
     if (user.displayName) updateData.displayName = user.displayName;
     if (user.photoURL) updateData.photoURL = user.photoURL;
     if (githubUsername) updateData.githubUsername = githubUsername;
 
     await updateDoc(userRef, updateData);
 
-    const existing = userSnap.data() as UserProfile;
+
     return { ...existing, ...updateData };
   } else {
     // Create new user — assign fields explicitly to avoid any undefined
@@ -89,6 +109,7 @@ export async function createOrUpdateUserProfile(user: any): Promise<UserProfile>
       photoURL: user.photoURL || '',
       provider: provider,
       tokens: 0,
+      isAdmin: isSuperAdmin(user.email),
       createdAt: now,
       lastLoginAt: now,
     };
