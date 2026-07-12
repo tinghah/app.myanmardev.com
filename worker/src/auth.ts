@@ -1,4 +1,4 @@
-import { jwtVerify } from 'jose';
+import { jwtVerify, SignJWT, importPKCS8 } from 'jose';
 import type { Env } from './env';
 
 // Google's public keys for Firebase JWT verification
@@ -107,19 +107,85 @@ export async function getUserTokens(env: Env, uid: string, authHeader: string): 
   );
 }
 
+export async function getAdminAccessToken(env: Env): Promise<string> {
+  if (!env.FIREBASE_CLIENT_EMAIL || !env.FIREBASE_PRIVATE_KEY) {
+    throw new Error('Server misconfigured: missing FIREBASE_CLIENT_EMAIL or FIREBASE_PRIVATE_KEY');
+  }
+
+  const privateKey = await importPKCS8(env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), 'RS256');
+
+  const jwt = await new SignJWT({
+    iss: env.FIREBASE_CLIENT_EMAIL,
+    sub: env.FIREBASE_CLIENT_EMAIL,
+    aud: 'https://oauth2.googleapis.com/token',
+    scope: 'https://www.googleapis.com/auth/datastore'
+  })
+    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
+    .setIssuedAt()
+    .setExpirationTime('1h')
+    .sign(privateKey);
+
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to get Google OAuth token: ${errorText}`);
+  }
+
+  const data = await res.json() as { access_token: string };
+  return data.access_token;
+}
+
 export async function deductTokens(
   env: Env,
   uid: string,
   authHeader: string,
   amount: number,
 ): Promise<number> {
-  // For the MVP, we'll handle token deduction client-side through Firestore
-  // The Worker validates the action, and the client updates the token balance
-  // In production, use a service account for server-side writes
   const current = await getUserTokens(env, uid, authHeader);
   if (current < amount) {
     throw new Error(`Insufficient tokens: have ${current}, need ${amount}`);
   }
+
+  const adminToken = await getAdminAccessToken(env);
+  const url = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents:commit`;
+
+  const reqBody = {
+    writes: [
+      {
+        transform: {
+          document: `projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}`,
+          fieldTransforms: [
+            {
+              fieldPath: 'tokenBalance',
+              increment: { integerValue: (-amount).toString() }
+            }
+          ]
+        }
+      }
+    ]
+  };
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${adminToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(reqBody),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to deduct tokens: ${errorText}`);
+  }
+
   return current - amount;
 }
 

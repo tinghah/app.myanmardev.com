@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth } from './AuthProvider';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { createTokenOrder, TOKEN_PACKAGES } from '../lib/orders';
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
 }
 
 export default function BuyTokensModal({ isOpen, onClose, onSuccess }: Props) {
-  const { user, profile } = useAuth();
+  const { user, profile } = useStore($authState);
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);

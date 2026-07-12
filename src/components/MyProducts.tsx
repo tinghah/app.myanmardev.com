@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from './AuthProvider';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { getUserOrders, type Order, type ProductOrder } from '../lib/orders';
 
 const PRODUCT_TYPES = ['subdomain', 'website', 'portfolio'] as const;
@@ -9,7 +10,7 @@ function isProductOrder(order: Order): order is ProductOrder {
 }
 
 export default function MyProducts() {
-  const { user } = useAuth();
+  const { user } = useStore($authState);
   const [products, setProducts] = useState<ProductOrder[]>([]);
   const [loading, setLoading] = useState(true);
 

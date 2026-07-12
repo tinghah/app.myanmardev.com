@@ -46,7 +46,7 @@ export async function createDnsRecord(
   env: Env,
   subdomain: string,
   target: string,
-  type: 'A' | 'CNAME',
+  type: 'A' | 'CNAME' | 'TXT',
 ): Promise<string> {
   const name = `${subdomain}.${env.DOMAIN_NAME}`;
 

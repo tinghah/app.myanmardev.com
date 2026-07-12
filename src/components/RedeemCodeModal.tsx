@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth } from './AuthProvider';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { redeemCode } from '../lib/redeem';
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
 }
 
 export default function RedeemCodeModal({ isOpen, onClose, onSuccess }: Props) {
-  const { user } = useAuth();
+  const { user } = useStore($authState);
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<{ tokens: number } | null>(null);

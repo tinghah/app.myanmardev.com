@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
-import { useAuth } from './AuthProvider';
+import React, { useState, useEffect } from 'react';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, initAuth } from '../stores/authStore';
 import TokenBalance from './TokenBalance';
 import OrderHistory from './OrderHistory';
 import BuyTokensModal from './BuyTokensModal';
 import RedeemCodeModal from './RedeemCodeModal';
 
 export default function DashboardContent() {
-  const { isSignedIn, profile, refreshProfile } = useAuth();
+  const { loading, isSignedIn, profile } = useStore($authState);
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [showRedeemModal, setShowRedeemModal] = useState(false);
+
+  useEffect(() => {
+    initAuth();
+  }, []);
+
+  if (loading) return null;
 
   if (!isSignedIn) {
     return (

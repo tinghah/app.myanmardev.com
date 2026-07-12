@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
-import { useAuth } from './AuthProvider';
+import React, { useState, useEffect } from 'react';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, initAuth } from '../stores/authStore';
 import BuyTokensModal from './BuyTokensModal';
 import RedeemCodeModal from './RedeemCodeModal';
 
 export default function TokenBalance() {
-  const { isSignedIn, profile, refreshProfile } = useAuth();
+  const { isSignedIn, profile } = useStore($authState);
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [showRedeemModal, setShowRedeemModal] = useState(false);
+
+  useEffect(() => {
+    initAuth();
+  }, []);
 
   if (!isSignedIn || !profile) return null;
 

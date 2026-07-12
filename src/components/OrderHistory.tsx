@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from './AuthProvider';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { getUserOrders, type Order } from '../lib/orders';
 
 export default function OrderHistory() {
-  const { user } = useAuth();
+  const { user } = useStore($authState);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 

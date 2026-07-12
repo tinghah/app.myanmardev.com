@@ -7,16 +7,14 @@ export function getStaticPaths() {
 }
 import Layout from '../../../layouts/Layout.astro';
 import Header from '../../../components/Header.astro';
-import AuthProvider from '../../../components/AuthProvider';
+
 import { t, type Language } from '../../../i18n/utils';
 
 const { lang } = Astro.params as { lang: Language };
 ---
 
 <Layout title={`${t(lang, 'auth.signIn')} | myanmardev.com`} description="Sign in to myanmardev.com with Google or GitHub">
-  <AuthProvider client:load>
-    <Header lang={lang} />
-  </AuthProvider>
+  <Header lang={lang} />
 
   <main class="signin-page">
     <div class="signin-card">

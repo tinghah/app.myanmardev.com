@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from './AuthProvider';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { collection, doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
 import { getDB } from '../lib/firebase';
 
@@ -11,7 +12,7 @@ interface Props {
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
 export default function NotifyMe({ productName, productId }: Props) {
-  const { isSignedIn, profile } = useAuth();
+  const { isSignedIn, profile } = useStore($authState);
   const [status, setStatus] = useState<Status>('idle');
   const [showEmailInput, setShowEmailInput] = useState(false);
   const [email, setEmail] = useState('');

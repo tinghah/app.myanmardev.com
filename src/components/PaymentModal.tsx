@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useAuth } from './AuthProvider';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { processPayment, type PaymentMethod } from '../lib/payments';
 import { getExchangeRate, formatDual } from '../lib/exchange-rate';
 
@@ -18,7 +19,7 @@ export default function PaymentModal({
   tokenCost,
   onPaymentComplete,
 }: Props) {
-  const { profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile } = useStore($authState);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('tokens');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);

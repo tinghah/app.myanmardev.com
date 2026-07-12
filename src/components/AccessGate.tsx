@@ -1,5 +1,6 @@
 import React from 'react';
-import { useAuth } from './AuthProvider';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 
 interface Props {
   children: React.ReactNode;
@@ -17,7 +18,7 @@ interface Props {
  * Must be used inside an AuthProvider.
  */
 export default function AccessGate({ children, signInFallback, pendingFallback }: Props) {
-  const { loading, isSignedIn, githubUsername, isApproved } = useAuth();
+  const { loading, isSignedIn, githubUsername, isApproved } = useStore($authState);
 
   // Still loading auth state — show nothing (or a spinner)
   if (loading) {

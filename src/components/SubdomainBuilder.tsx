@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { checkSubdomain, createSubdomain, getDomains } from '../lib/api';
-import { useAuth } from './AuthProvider';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { deductTokens } from '../lib/auth';
 import { createProductOrder } from '../lib/orders';
 import SignInModal from './SignInModal';
@@ -159,7 +160,7 @@ if (typeof document !== 'undefined' && !document.getElementById(INJECTED)) {
 // ─── Main Component ──────────────────────────────────────
 
 export default function SubdomainBuilder() {
-  const { isSignedIn, profile, signInWithGoogle, signInWithGitHub, refreshProfile } = useAuth();
+  const { isSignedIn, profile, signInWithGoogle, signInWithGitHub, refreshProfile } = useStore($authState);
   const [step, setStep] = useState<Step>(1);
   const [subdomain, setSubdomain] = useState('');
   const [domain, setDomain] = useState('myanmardev.com');

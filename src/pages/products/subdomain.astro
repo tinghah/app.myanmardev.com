@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
-import AuthProvider from '../../components/AuthProvider';
+
 import SubdomainBuilder from '../../components/SubdomainBuilder';
 import { t, type Language } from '../../i18n/utils';
 
@@ -127,9 +127,7 @@ const features = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'] as const;
         <p class="lede rise" style="margin:.6rem 0 0">Choose a name, pick a platform, deploy instantly.</p>
 
         <div class="rise" style="margin-top:2rem;max-width:560px">
-          <AuthProvider client:load>
-            <SubdomainBuilder client:load />
-          </AuthProvider>
+          <SubdomainBuilder client:load />
         </div>
       </div>
     </section>

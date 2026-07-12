@@ -21,12 +21,11 @@ service cloud.firestore {
     //     (deductTokens, updateTokenBalance in src/lib/firestore.ts)
     // =========================================================================
     match /users/{userId} {
-      allow read, update: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
       allow create: if request.auth != null;
-      allow read: if isAdmin();
-      allow update: if isAdmin() &&
-        request.resource.data.diff(resource.data).affectedKeys()
-          .hasAny(['tokenBalance', 'tokens', 'isAdmin']);
+      allow update: if request.auth != null && request.auth.uid == userId &&
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['tokenBalance', 'tokens', 'isAdmin']));
+      allow update: if isAdmin();
     }
 
     // =========================================================================

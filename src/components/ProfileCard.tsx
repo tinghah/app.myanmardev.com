@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useAuth } from './AuthProvider';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import BuyTokensModal from './BuyTokensModal';
 import RedeemCodeModal from './RedeemCodeModal';
 
 export default function ProfileCard() {
-  const { isSignedIn, profile, user, refreshProfile } = useAuth();
+  const { isSignedIn, profile, user, refreshProfile } = useStore($authState);
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [showRedeemModal, setShowRedeemModal] = useState(false);
 

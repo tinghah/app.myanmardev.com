@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react';
-import { useAuth } from './AuthProvider';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useStore } from '@nanostores/react';
+import { $authState, initAuth, signInWithGoogle, signInWithGitHub, signOut } from '../stores/authStore';
 import SignInModal from './SignInModal';
 
 const styles: Record<string, React.CSSProperties> = {
@@ -79,9 +80,13 @@ function getDashboardPath(): string {
 }
 
 export default function AuthButton() {
-  const { loading, isSignedIn, profile, signInWithGoogle, signInWithGitHub, signOut } = useAuth();
+  const { loading, isSignedIn, profile } = useStore($authState);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    initAuth();
+  }, []);
 
   const handleSignInClick = useCallback(() => {
     setShowModal(true);
@@ -102,7 +107,7 @@ export default function AuthButton() {
       console.error('Google sign-in error:', err);
       setError(err?.message || 'Sign-in failed');
     }
-  }, [signInWithGoogle]);
+  }, []);
 
   const handleGitHubSignIn = useCallback(async () => {
     setShowModal(false);
@@ -113,7 +118,7 @@ export default function AuthButton() {
       console.error('GitHub sign-in error:', err);
       setError(err?.message || 'Sign-in failed');
     }
-  }, [signInWithGitHub]);
+  }, []);
 
   const goToProfile = useCallback(() => {
     window.location.href = getDashboardPath();

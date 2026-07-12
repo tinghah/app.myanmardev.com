@@ -7,7 +7,7 @@ export function getStaticPaths() {
 }
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
-import AuthProvider from '../../components/AuthProvider';
+
 import DashboardContent from '../../components/DashboardContent';
 import { t, type Language } from '../../i18n/utils';
 
@@ -17,20 +17,15 @@ const description = 'Manage your tokens, view order history, and track your depl
 ---
 
 <Layout title={title} description={description} lang={lang}>
-  <AuthProvider client:load>
-    <Header lang={lang} />
-    <main style="padding:clamp(2rem,5vw,4rem) clamp(1.25rem,4vw,3rem)">
-      <div style="max-width:78rem;margin:0 auto">
-        <div class="sx rise"><b></b> <span>/ dashboard</span></div>
-        <h1 class="h-section rise" style="margin-top:.9rem">Your Dashboard</h1>
-        <p class="lede rise" style="margin:.6rem auto 0;max-width:600px">
-          Manage your tokens, view order history, and track your deployments.
-        </p>
-
-        <DashboardContent client:load />
-      </div>
-    </main>
-  </AuthProvider>
+  <Header lang={lang} />
+  <main class="dashboard-page" style="padding:clamp(2rem,5vw,4rem) 0">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(1.25rem, 4vw, 3rem);">
+      <div class="sx rise"><b></b> <span>/ dashboard</span></div>
+      <h1 class="h-section rise" style="margin-top: 0.75rem;">Account Overview</h1>
+      
+      <DashboardContent client:load />
+    </div>
+  </main>
 
   <footer style="border-top:1px solid var(--border);background:var(--surface);margin-top:4rem">
     <div style="max-width:78rem;margin:0 auto;padding:clamp(2rem,4vw,3rem) clamp(1.25rem,4vw,3rem);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem">

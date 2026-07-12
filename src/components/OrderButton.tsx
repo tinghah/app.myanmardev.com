@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth } from './AuthProvider';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import SignInModal from './SignInModal';
 import BuyTokensModal from './BuyTokensModal';
 import PaymentModal from './PaymentModal';
@@ -13,7 +14,7 @@ interface Props {
 type ModalState = 'closed' | 'signin' | 'buyTokens' | 'payment' | 'success';
 
 export default function OrderButton({ productName, tokenCost, productSlug }: Props) {
-  const { isSignedIn, profile, signInWithGoogle, signInWithGitHub, refreshProfile } = useAuth();
+  const { isSignedIn, profile, signInWithGoogle, signInWithGitHub, refreshProfile } = useStore($authState);
   const [modal, setModal] = useState<ModalState>('closed');
   const [successMsg, setSuccessMsg] = useState(false);
 

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from './AuthProvider';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { getUserOrders, type Order, type ProductOrder } from '../lib/orders';
 
 export default function MySubdomains() {
-  const { user } = useAuth();
+  const { user } = useStore($authState);
   const [subdomains, setSubdomains] = useState<ProductOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);

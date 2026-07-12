@@ -1,4 +1,4 @@
-import { verifyFirebaseToken, getUserTokens, isAdmin } from './auth';
+import { verifyFirebaseToken, getUserTokens, isAdmin, deductTokens } from './auth';
 import { checkDnsRecord, createDnsRecord, deleteDnsRecord, findDnsRecordId } from './cloudflare-dns';
 import type { Env } from './env';
 
@@ -143,11 +143,17 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
         return json({ error: 'Subdomain already taken' }, 409, origin);
       }
 
+      // Deduct tokens securely on the server
+      await deductTokens(env, uid, bearerToken, SUBDOMAIN_COST);
+
       // Create DNS record
       const recordId = await createDnsRecord(env, subdomain, target, type);
+      
+      // Create TXT record for ownership verification
+      const txtRecordId = await createDnsRecord(env, subdomain, `v=myanmardev-owner=${uid}`, 'TXT');
 
-      // Return success — client handles token deduction via Firestore
-      return json({ success: true, recordId, tokensDeducted: SUBDOMAIN_COST }, 200, origin);
+      // Return success
+      return json({ success: true, recordId, txtRecordId, tokensDeducted: SUBDOMAIN_COST }, 200, origin);
     }
 
     // Delete subdomain

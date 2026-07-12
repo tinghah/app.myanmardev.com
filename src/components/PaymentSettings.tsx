@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth } from './AuthProvider';
+import { useStore } from '@nanostores/react';
+import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { useCurrency, type Currency } from './CurrencyToggle';
 
 // TODO: integrate payment method storage
@@ -18,7 +19,7 @@ const CURRENCIES: { value: Currency; label: string }[] = [
 ];
 
 export default function PaymentSettings() {
-  const { isSignedIn, profile } = useAuth();
+  const { isSignedIn, profile } = useStore($authState);
   const { currency } = useCurrency();
   const [defaultMethod, setDefaultMethod] = useState<PaymentMethod>('tokens');
   const [preferredCurrency, setPreferredCurrency] = useState<Currency>(currency);
