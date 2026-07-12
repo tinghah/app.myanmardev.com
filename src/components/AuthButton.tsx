@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useStore } from '@nanostores/react';
 import { $authState, initAuth, signInWithGoogle, signInWithGitHub, signOut } from '../stores/authStore';
 
@@ -24,18 +25,20 @@ interface ModalProps {
 }
 
 function SignInModal({ onClose, onGoogle, onGitHub, loading, error }: ModalProps) {
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <div
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 9999,
+        zIndex: 99999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(0,0,0,0.75)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(8, 9, 10, 0.5)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
         padding: '1rem',
       }}
       onClick={onClose}
@@ -185,7 +188,8 @@ function SignInModal({ onClose, onGoogle, onGitHub, loading, error }: ModalProps
           By signing in, you agree to our Terms of Service
         </p>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

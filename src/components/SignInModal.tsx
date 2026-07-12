@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 interface Props {
   isOpen: boolean;
@@ -8,18 +9,19 @@ interface Props {
 }
 
 export default function SignInModal({ isOpen, onClose, onSignInGoogle, onSignInGitHub }: Props) {
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
 
-  return (
+  return createPortal(
     <div style={{
       position: 'fixed',
       inset: 0,
-      zIndex: 1000,
+      zIndex: 99999,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'rgba(8, 9, 10, 0.85)',
+      background: 'rgba(8, 9, 10, 0.5)',
       backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
     }} onClick={onClose}>
       <div style={{
         background: 'var(--surface)',
@@ -177,6 +179,7 @@ export default function SignInModal({ isOpen, onClose, onSignInGoogle, onSignInG
           </p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

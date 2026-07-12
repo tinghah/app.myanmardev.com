@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useStore } from '@nanostores/react';
 import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { redeemCode } from '../lib/redeem';
@@ -16,7 +17,7 @@ export default function RedeemCodeModal({ isOpen, onClose, onSuccess }: Props) {
   const [success, setSuccess] = useState<{ tokens: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,16 +50,17 @@ export default function RedeemCodeModal({ isOpen, onClose, onSuccess }: Props) {
     }
   };
 
-  return (
+  return createPortal(
     <div style={{
       position: 'fixed',
       inset: 0,
-      zIndex: 1000,
+      zIndex: 99999,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'rgba(8, 9, 10, 0.85)',
-      backdropFilter: 'blur(4px)',
+      background: 'rgba(8, 9, 10, 0.5)',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
     }} onClick={onClose}>
       <div style={{
         background: 'var(--surface)',
@@ -267,6 +269,7 @@ export default function RedeemCodeModal({ isOpen, onClose, onSuccess }: Props) {
           ✕
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

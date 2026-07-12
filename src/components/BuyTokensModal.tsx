@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useStore } from '@nanostores/react';
 import { $authState } from '../stores/authStore';
 import { createTokenOrder, TOKEN_PACKAGES } from '../lib/orders';
@@ -203,8 +204,10 @@ export default function BuyTokensModal({ isOpen, onClose, onSuccess }: Props) {
     );
   };
 
-  return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(8, 9, 10, 0.85)', backdropFilter: 'blur(8px)' }} onClick={handleClose}>
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(8, 9, 10, 0.5)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }} onClick={handleClose}>
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', padding: '2rem', maxWidth: '500px', width: '90%', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border)', position: 'relative' }} onClick={(e) => e.stopPropagation()}>
         {success ? (
           <div style={{ textAlign: 'center', padding: '2rem 0' }}>
@@ -221,6 +224,7 @@ export default function BuyTokensModal({ isOpen, onClose, onSuccess }: Props) {
         )}
         <button onClick={handleClose} style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', background: 'none', border: 'none', color: 'var(--muted)', fontSize: '1rem', cursor: 'pointer', padding: '0.25rem', lineHeight: 1, fontFamily: 'var(--mono)' }}>✕</button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

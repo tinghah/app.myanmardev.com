@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useStore } from '@nanostores/react';
 import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { processPayment, type PaymentMethod } from '../lib/payments';
@@ -100,8 +101,6 @@ export default function PaymentModal({
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   // ─── Confirm handler ──────────────────────────────────────────
   const handleConfirm = async () => {
     if (selectedMethod === 'tokens') {
@@ -144,17 +143,21 @@ export default function PaymentModal({
   };
 
   // ─── Render ───────────────────────────────────────────────────
-  return (
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  // ─── Render ───────────────────────────────────────────────────
+  return createPortal(
     <div
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 1000,
+        zIndex: 99999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(0, 0, 0, 0.7)',
-        backdropFilter: 'blur(4px)',
+        background: 'rgba(8, 9, 10, 0.5)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
       }}
       onClick={onClose}
     >
@@ -603,6 +606,7 @@ export default function PaymentModal({
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
