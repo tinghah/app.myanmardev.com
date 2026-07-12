@@ -97,13 +97,10 @@ export async function getUserTokens(env: Env, uid: string, authHeader: string): 
   const doc = await res.json() as {
     fields?: {
       tokens?: { integerValue?: string };
-      tokens?: { integerValue?: string };
     };
   };
   return parseInt(
-    doc.fields?.tokens?.integerValue ||
-      doc.fields?.tokens?.integerValue ||
-      '0',
+    doc.fields?.tokens?.integerValue || '0',
   );
 }
 
