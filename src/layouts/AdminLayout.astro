@@ -1,6 +1,6 @@
 ---
 import Layout from './Layout.astro';
-import AdminSidebar from '../components/admin/AdminSidebar';
+import Header from '../components/Header.astro';
 
 interface Props {
   title: string;
@@ -28,16 +28,14 @@ const currentPath = Astro.url.pathname;
     });
   </script>
 
-  <div style="display: flex; min-height: 100vh; background: var(--base);">
-    <AdminSidebar client:load currentPath={currentPath} lang={lang} />
-    
-    <main style="flex: 1; padding: 2rem; overflow-y: auto; max-height: 100vh;">
-      <div style="max-width: 1200px; margin: 0 auto;">
-        <h1 style="font-family: var(--display); font-size: 2rem; margin-bottom: 2rem; color: var(--ink);">
-          {title}
-        </h1>
-        <slot />
-      </div>
-    </main>
-  </div>
+  <Header lang={lang as any} />
+  
+  <main style="padding: 2rem; min-height: calc(100vh - 70px); background: var(--base);">
+    <div style="max-width: 1200px; margin: 0 auto; padding-top: 2rem;">
+      <h1 style="font-family: var(--display); font-size: 2rem; margin-bottom: 2rem; color: var(--ink);">
+        {title}
+      </h1>
+      <slot />
+    </div>
+  </main>
 </Layout>

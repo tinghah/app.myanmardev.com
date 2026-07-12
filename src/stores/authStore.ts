@@ -78,6 +78,11 @@ export function initAuth() {
             document.body.setAttribute('data-auth', 'signed-in');
             if (userProfile.isAdmin) {
               document.body.setAttribute('data-admin', 'true');
+              const currentPath = window.location.pathname;
+              if (!currentPath.includes('/admin')) {
+                const lang = currentPath.startsWith('/my') ? 'my' : 'en';
+                window.location.href = `/${lang}/admin/users`;
+              }
             } else {
               document.body.removeAttribute('data-admin');
             }
