@@ -23,6 +23,7 @@ export interface TokenOrder {
   type: 'token_purchase';
   tokenAmount: number;
   priceUSD: number;
+  paymentMethod?: string;
   status: OrderStatus;
   createdAt: Timestamp;
   processedAt?: Timestamp;
@@ -66,7 +67,8 @@ export async function createTokenOrder(
   userId: string,
   userEmail: string,
   tokenAmount: number,
-  priceUSD: number
+  priceUSD: number,
+  paymentMethod?: string
 ): Promise<string> {
   const db = getDB();
   const ordersRef = collection(db, 'orders');
@@ -77,6 +79,7 @@ export async function createTokenOrder(
     type: 'token_purchase',
     tokenAmount,
     priceUSD,
+    paymentMethod,
     status: 'pending',
     createdAt: Timestamp.now(),
   };

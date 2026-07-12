@@ -140,7 +140,35 @@ export async function signInWithGitHub() {
   } catch (err: any) {
     const msg = err?.message || String(err);
     console.error('[Auth] GitHub sign-in failed:', err?.code, msg);
-    return { error: msg };
+    return { error: msg, code: err?.code };
+  }
+}
+
+export async function linkGoogleAccount() {
+  if (!_authRef?.currentUser || !_authModRef || !_googleProviderRef) return { error: 'Not initialized' };
+  try {
+    const result = await _authModRef.linkWithPopup(_authRef.currentUser, _googleProviderRef);
+    const { createOrUpdateUserProfile } = await import('../lib/auth');
+    await createOrUpdateUserProfile(result.user);
+    await refreshProfile();
+    return { user: result.user };
+  } catch (err: any) {
+    const msg = err?.message || String(err);
+    return { error: msg, code: err?.code };
+  }
+}
+
+export async function linkGitHubAccount() {
+  if (!_authRef?.currentUser || !_authModRef || !_githubProviderRef) return { error: 'Not initialized' };
+  try {
+    const result = await _authModRef.linkWithPopup(_authRef.currentUser, _githubProviderRef);
+    const { createOrUpdateUserProfile } = await import('../lib/auth');
+    await createOrUpdateUserProfile(result.user);
+    await refreshProfile();
+    return { user: result.user };
+  } catch (err: any) {
+    const msg = err?.message || String(err);
+    return { error: msg, code: err?.code };
   }
 }
 

@@ -77,25 +77,25 @@
     "mmk": "MMK",
     "action": "Action",
     "starter": {
-      "name": "Starter",
+      "name": "Free Trial / Starter",
       "tokens": "5",
       "usd": "$2.50",
       "mmk": "10,000 MMK"
     },
     "basic": {
-      "name": "Basic",
+      "name": "Basic Plan",
       "tokens": "10",
       "usd": "$4.00",
       "mmk": "16,000 MMK"
     },
     "pro": {
-      "name": "Pro",
+      "name": "Pro Plan",
       "tokens": "25",
       "usd": "$8.00",
       "mmk": "32,000 MMK"
     },
     "business": {
-      "name": "Business",
+      "name": "Business Plan",
       "tokens": "50",
       "usd": "$12.00",
       "mmk": "48,000 MMK"

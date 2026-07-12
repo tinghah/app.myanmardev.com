@@ -8,7 +8,7 @@ export interface UserProfile {
   email: string;
   displayName: string;
   photoURL: string;
-  provider: 'google' | 'github' | 'unknown';
+  provider: 'google' | 'github' | 'google, github' | 'unknown';
   githubUsername?: string;
   tokenBalance: number;
   createdAt: Timestamp;
@@ -17,12 +17,17 @@ export interface UserProfile {
 
 // ─── Detect Provider from Firebase User ─────────────────
 
-function detectProvider(user: any): 'google' | 'github' | 'unknown' {
-  // Check providerData array first (most reliable)
+function detectProvider(user: any): 'google' | 'github' | 'google, github' | 'unknown' {
+  let hasGoogle = false;
+  let hasGithub = false;
   for (const p of user.providerData || []) {
-    if (p?.providerId === 'google.com') return 'google';
-    if (p?.providerId === 'github.com') return 'github';
+    if (p?.providerId === 'google.com') hasGoogle = true;
+    if (p?.providerId === 'github.com') hasGithub = true;
   }
+  if (hasGoogle && hasGithub) return 'google, github';
+  if (hasGoogle) return 'google';
+  if (hasGithub) return 'github';
+  
   // Fallback: check email domain hints
   if (user.email?.endsWith('@gmail.com')) return 'google';
   return 'unknown';
@@ -44,14 +49,6 @@ function extractGithubUsername(user: any): string | null {
   return null;
 }
 
-// ─── Sanitize: strip any undefined values from object ────
-
-function stripUndefined<T extends Record<string, any>>(obj: T): T {
-  return Object.fromEntries(
-    Object.entries(obj).filter(([, v]) => v !== undefined && v !== null)
-  ) as T;
-}
-
 // ─── User Profile Functions ─────────────────────────────
 
 /**
@@ -64,40 +61,42 @@ export async function createOrUpdateUserProfile(user: any): Promise<UserProfile>
   const userSnap = await getDoc(userRef);
 
   const now = Timestamp.now();
-  const provider = detectProvider(user);
-  const githubUsername = provider === 'github' ? extractGithubUsername(user) : null;
+  // Ensure provider is never undefined
+  const provider = detectProvider(user) || 'unknown';
+  const githubUsername = (provider === 'github' || provider === 'google, github') ? extractGithubUsername(user) : null;
 
   if (userSnap.exists()) {
     // Update only safe, non-undefined fields
-    const updateData: Record<string, any> = stripUndefined({
+    const updateData: Record<string, any> = {
       lastLoginAt: now,
-      displayName: user.displayName || '',
-      photoURL: user.photoURL || '',
-      // Only update githubUsername if we found one
-      ...(githubUsername ? { githubUsername } : {}),
-    });
+      provider: provider,
+    };
+    if (user.displayName) updateData.displayName = user.displayName;
+    if (user.photoURL) updateData.photoURL = user.photoURL;
+    if (githubUsername) updateData.githubUsername = githubUsername;
 
     await updateDoc(userRef, updateData);
 
     const existing = userSnap.data() as UserProfile;
     return { ...existing, ...updateData };
   } else {
-    // Create new user — strip all undefined / null before writing
-    const newProfile = stripUndefined({
+    // Create new user — assign fields explicitly to avoid any undefined
+    const newProfile: Record<string, any> = {
       uid: user.uid,
       email: user.email || '',
       displayName: user.displayName || '',
       photoURL: user.photoURL || '',
-      provider,
+      provider: provider,
       tokenBalance: 0,
       createdAt: now,
       lastLoginAt: now,
-      // Only include githubUsername if we have one
-      ...(githubUsername ? { githubUsername } : {}),
-    }) as UserProfile;
+    };
+    if (githubUsername) {
+      newProfile.githubUsername = githubUsername;
+    }
 
     await setDoc(userRef, newProfile);
-    return newProfile;
+    return newProfile as UserProfile;
   }
 }
 

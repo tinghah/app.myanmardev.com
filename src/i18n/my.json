@@ -26,19 +26,28 @@
       "name": "Subdomain",
       "desc": "yourname.myanmardev.com",
       "price": "1 Token",
-      "status": "ရရှိနိုင်"
+      "status": "ရရှိနိုင်",
+      "usd": "$0.50",
+      "mmk": "၂,၀၀၀ ကျပ်",
+      "order": "ယခု မှာယူရန်"
     },
     "p2": {
       "name": "Website",
       "desc": "Template အခြေခံ site",
       "price": "3 Token",
-      "status": "မကြာခင်"
+      "status": "မကြာခင်",
+      "usd": "$1.50",
+      "mmk": "၆,၀၀၀ ကျပ်",
+      "order": "အကြောင်းကြားရန်"
     },
     "p3": {
       "name": "Portfolio",
       "desc": "GitHub ဖြင့် showcase",
       "price": "2 Token",
-      "status": "မကြာခင်"
+      "status": "မကြာခင်",
+      "usd": "$1.00",
+      "mmk": "၄,၀၀၀ ကျပ်",
+      "order": "အကြောင်းကြားရန်"
     }
   },
   "how": {
@@ -59,25 +68,25 @@
     "perToken": "/token",
     "buy": "ဝယ်ရန်",
     "starter": {
-      "name": "Starter",
+      "name": "Free Trial / Starter",
       "tokens": "5",
       "usd": "$2.50",
       "mmk": "၁၀,၀၀၀ ကျပ်"
     },
     "basic": {
-      "name": "Basic",
+      "name": "Basic Plan",
       "tokens": "10",
       "usd": "$4.00",
       "mmk": "၁၆,၀၀၀ ကျပ်"
     },
     "pro": {
-      "name": "Pro",
+      "name": "Pro Plan",
       "tokens": "25",
       "usd": "$8.00",
       "mmk": "၃၂,၀၀၀ ကျပ်"
     },
     "business": {
-      "name": "Business",
+      "name": "Business Plan",
       "tokens": "50",
       "usd": "$12.00",
       "mmk": "၄၈,၀၀၀ ကျပ်"

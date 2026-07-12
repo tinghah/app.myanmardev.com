@@ -26,14 +26,15 @@ const { lang } = Astro.props;
           <span class="pricing-mmk">{t(lang, 'pricing.starter.mmk')}</span>
         </div>
         <div class="pricing-tokens-row">
-          <span class="pricing-tokens-num">{t(lang, 'pricing.starter.tokens')}</span>
+          <span class="pricing-tokens-num pricing-tokens-num--accent">{t(lang, 'pricing.starter.tokens')}</span>
           <span class="pricing-tokens-label">Tokens</span>
         </div>
         <ul class="pricing-perks">
           <li><span class="perk-check">✓</span> 5 subdomain registrations</li>
           <li><span class="perk-check">✓</span> Instant DNS activation</li>
           <li><span class="perk-check">✓</span> Free SSL on all domains</li>
-          <li><span class="perk-check">✓</span> Tokens never expire</li>
+          <li><span class="perk-check" style="color: #ef4444;">❌</span> Priority support</li>
+          <li><span class="perk-check">✓</span> Tokens expire in 3 days</li>
         </ul>
         <a href={`/${lang}/auth/signin`} class="btn btn--ghost" style="width: 100%; justify-content: center; margin-top: auto; padding-top: 1rem;">
           {t(lang, 'pricing.buy')}
@@ -48,14 +49,14 @@ const { lang } = Astro.props;
           <span class="pricing-mmk">{t(lang, 'pricing.basic.mmk')}</span>
         </div>
         <div class="pricing-tokens-row">
-          <span class="pricing-tokens-num">{t(lang, 'pricing.basic.tokens')}</span>
+          <span class="pricing-tokens-num pricing-tokens-num--accent">{t(lang, 'pricing.basic.tokens')}</span>
           <span class="pricing-tokens-label">Tokens</span>
         </div>
         <ul class="pricing-perks">
           <li><span class="perk-check">✓</span> 10 subdomain registrations</li>
           <li><span class="perk-check">✓</span> 3 website builders</li>
-          <li><span class="perk-check">✓</span> Priority DNS provisioning</li>
-          <li><span class="perk-check">✓</span> Tokens never expire</li>
+          <li><span class="perk-check" style="color: #ef4444;">❌</span> Priority support</li>
+          <li><span class="perk-check">✓</span> Tokens expire in 7 days</li>
         </ul>
         <a href={`/${lang}/auth/signin`} class="btn btn--ghost" style="width: 100%; justify-content: center; margin-top: auto; padding-top: 1rem;">
           {t(lang, 'pricing.buy')}
@@ -79,7 +80,7 @@ const { lang } = Astro.props;
         <ul class="pricing-perks">
           <li><span class="perk-check">✓</span> 25 subdomain registrations</li>
           <li><span class="perk-check">✓</span> 8 website builders</li>
-          <li><span class="perk-check">✓</span> 12 portfolio sites</li>
+          <li><span class="perk-check">✓</span> Priority DNS provisioning start</li>
           <li><span class="perk-check">✓</span> Priority support</li>
           <li><span class="perk-check">✓</span> Tokens never expire</li>
         </ul>
@@ -99,7 +100,7 @@ const { lang } = Astro.props;
           <span class="pricing-mmk">{t(lang, 'pricing.business.mmk')}</span>
         </div>
         <div class="pricing-tokens-row">
-          <span class="pricing-tokens-num">{t(lang, 'pricing.business.tokens')}</span>
+          <span class="pricing-tokens-num pricing-tokens-num--accent">{t(lang, 'pricing.business.tokens')}</span>
           <span class="pricing-tokens-label">Tokens</span>
         </div>
         <ul class="pricing-perks">
@@ -122,7 +123,7 @@ const { lang } = Astro.props;
         <div class="token-exp-icon">🪙</div>
         <div>
           <div class="token-exp-title">How tokens work</div>
-          <div class="token-exp-desc">1 Token = $0.50 USD = 2,000 MMK · Subdomain costs 1 token · Tokens stack and never expire · Buy once, use any time</div>
+          <div class="token-exp-desc">1 Token = $0.50 USD = 2,000 MMK · Subdomain costs 1 token · Tokens stack and never expire · Buy once, use any time<br/>1 USDT = 4000 MMK [FIXED Rate]</div>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '@nanostores/react';
-import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
+import { $authState, refreshProfile, linkGoogleAccount, linkGitHubAccount } from '../stores/authStore';
 import BuyTokensModal from './BuyTokensModal';
 import RedeemCodeModal from './RedeemCodeModal';
 
@@ -8,6 +8,7 @@ export default function ProfileCard() {
   const { isSignedIn, profile, user, refreshProfile } = useStore($authState);
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [showRedeemModal, setShowRedeemModal] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
 
   if (!isSignedIn || !profile) return null;
 
@@ -21,6 +22,33 @@ export default function ProfileCard() {
       month: 'short',
       day: 'numeric',
     });
+  };
+
+  const isGoogleLinked = user?.providerData?.some((p: any) => p.providerId === 'google.com');
+  const isGitHubLinked = user?.providerData?.some((p: any) => p.providerId === 'github.com');
+
+  const handleLinkGoogle = async () => {
+    setLinkError(null);
+    const result = await linkGoogleAccount();
+    if (result.error) {
+      if (result.code === 'auth/credential-already-in-use') {
+        setLinkError('This Google account is already linked to another user.');
+      } else {
+        setLinkError(result.error);
+      }
+    }
+  };
+
+  const handleLinkGitHub = async () => {
+    setLinkError(null);
+    const result = await linkGitHubAccount();
+    if (result.error) {
+      if (result.code === 'auth/credential-already-in-use') {
+        setLinkError('This GitHub account is already linked to another user. You cannot link it to this account.');
+      } else {
+        setLinkError(result.error);
+      }
+    }
   };
 
   return (
@@ -90,7 +118,7 @@ export default function ProfileCard() {
               color: 'var(--muted)',
               wordBreak: 'break-all',
             }}>
-              {profile.email}
+              {profile.email || (profile.provider === 'github' ? 'GitHub Account' : 'N/A')}
             </div>
           </div>
 
@@ -104,7 +132,7 @@ export default function ProfileCard() {
             borderRadius: '6px',
             flexShrink: 0,
           }}>
-            {profile.provider === 'google' ? (
+            {profile.provider === 'google' || profile.provider === 'google, github' ? (
               <>
                 <svg width="14" height="14" viewBox="0 0 24 24">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -180,6 +208,50 @@ export default function ProfileCard() {
           marginBottom: '1.5rem',
         }}>
           Member since {formatDate(profile.createdAt)}
+        </div>
+
+        {/* Account Linking */}
+        <div style={{
+          background: 'var(--base)',
+          padding: '1rem',
+          borderRadius: '8px',
+          border: '1px solid var(--border)',
+          marginBottom: '1.5rem'
+        }}>
+          <div style={{
+            fontFamily: 'var(--mono)',
+            fontSize: '0.6875rem',
+            color: 'var(--ink)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            fontWeight: 700,
+            marginBottom: '0.75rem'
+          }}>
+            Linked Accounts
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.8125rem', color: 'var(--muted)' }}>Google</span>
+              {isGoogleLinked ? (
+                <span style={{ fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 600 }}>Linked ✅</span>
+              ) : (
+                <button onClick={handleLinkGoogle} style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '4px', cursor: 'pointer', color: 'var(--ink)' }}>Link Google</button>
+              )}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.8125rem', color: 'var(--muted)' }}>GitHub</span>
+              {isGitHubLinked ? (
+                <span style={{ fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 600 }}>Linked ✅</span>
+              ) : (
+                <button onClick={handleLinkGitHub} style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '4px', cursor: 'pointer', color: 'var(--ink)' }}>Link GitHub</button>
+              )}
+            </div>
+          </div>
+          {linkError && (
+            <div style={{ marginTop: '0.75rem', padding: '0.5rem', background: 'color-mix(in srgb, #E8A33D 10%, transparent)', border: '1px solid #E8A33D', borderRadius: '4px', color: '#E8A33D', fontSize: '0.75rem' }}>
+              {linkError}
+            </div>
+          )}
         </div>
 
         {/* Quick action buttons */}
