@@ -301,6 +301,7 @@ function UserMenu({ profile, user, onSignOut }: UserMenuProps) {
               { label: 'Dashboard', icon: '⚡', href: getDashboardPath() },
               { label: 'Buy Tokens', icon: '🪙', href: getDashboardPath() + '#buy' },
               { label: 'My Subdomains', icon: '🌐', href: getDashboardPath() + '#subdomains' },
+              ...(profile?.isAdmin ? [{ label: 'Admin Panel', icon: '⚙️', href: `/${getLangFromPath()}/admin` }] : []),
             ].map(({ label, icon, href }) => (
               <a
                 key={label}
