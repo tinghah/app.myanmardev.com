@@ -15,11 +15,24 @@ const currentPath = Astro.url.pathname;
   <!-- Admin Guard Script -->
   <script>
     import { $authState, redirectAdminIfNeeded } from '../stores/authStore';
-    
+
+    const SUPER_ADMIN_EMAILS = [
+      'myanmardevadmin@gmail.com',
+      'ting.pouchen@gmail.com'
+    ];
+
+    function isSuperAdminEmail(email: string | null | undefined): boolean {
+      if (!email) return false;
+      return SUPER_ADMIN_EMAILS.includes(email.toLowerCase());
+    }
+
     // Subscribe to auth state changes to protect the route
     $authState.subscribe((state) => {
       if (!state.loading) {
-        if (!state.isSignedIn || !state.profile?.isAdmin) {
+        // Check admin status from both profile AND Firebase Auth email (belt-and-suspenders)
+        const isAdmin = state.profile?.isAdmin || isSuperAdminEmail(state.user?.email);
+
+        if (!state.isSignedIn || !isAdmin) {
           // If they aren't logged in, or aren't an admin, redirect them
           // to the standard user dashboard or home.
           window.location.href = `/${document.documentElement.lang}/dashboard`;

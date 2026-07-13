@@ -5,6 +5,16 @@ import { $authState, initAuth, signInWithGoogle, signInWithGitHub, signOut, redi
 
 // ─── Helpers ──────────────────────────────────────────────
 
+const SUPER_ADMIN_EMAILS = [
+  'myanmardevadmin@gmail.com',
+  'ting.pouchen@gmail.com'
+];
+
+function isAdminEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return SUPER_ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
 function getLangFromPath(): string {
   if (typeof window === 'undefined') return 'en';
   return window.location.pathname.startsWith('/my') ? 'my' : 'en';
@@ -205,6 +215,7 @@ function UserMenu({ profile, user, onSignOut }: UserMenuProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const displayName = profile?.displayName || user?.displayName || user?.email?.split('@')[0] || 'Dev';
   const initial = displayName[0]?.toUpperCase() || '?';
+  const isAdmin = profile?.isAdmin || isAdminEmail(user?.email);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -242,7 +253,7 @@ function UserMenu({ profile, user, onSignOut }: UserMenuProps) {
           </div>
         )}
         {/* Token balance chip - hidden for admins */}
-        {profile && !profile.isAdmin && (
+        {profile && !isAdmin && (
           <div style={{
             fontFamily: 'var(--mono)', fontSize: '0.625rem', fontWeight: 700,
             color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '2px',
@@ -288,7 +299,7 @@ function UserMenu({ profile, user, onSignOut }: UserMenuProps) {
               }}>
                 {profile?.email || user?.email}
               </div>
-              {profile && !profile.isAdmin && (
+              {profile && !isAdmin && (
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: '0.35rem',
                   marginTop: '0.5rem',
@@ -302,12 +313,12 @@ function UserMenu({ profile, user, onSignOut }: UserMenuProps) {
 
             {/* Menu Items */}
             {[
-              ...(profile?.isAdmin ? [] : [
+              ...(isAdmin ? [] : [
                 { label: 'Dashboard', icon: '⚡', href: getDashboardPath() },
                 { label: 'Buy Tokens', icon: '🪙', href: getDashboardPath() + '#buy' },
                 { label: 'My Subdomains', icon: '🌐', href: getDashboardPath() + '#subdomains' },
               ]),
-              ...(profile?.isAdmin ? [{ label: 'Admin Panel', icon: '⚙️', href: `/${getLangFromPath()}/admin` }] : []),
+              ...(isAdmin ? [{ label: 'Admin Panel', icon: '⚙️', href: `/${getLangFromPath()}/admin` }] : []),
             ].map(({ label, icon, href }) => (
               <a
                 key={label}
@@ -367,14 +378,14 @@ export default function AuthButton() {
     if (isSignedIn && typeof window !== 'undefined') {
       const path = window.location.pathname;
       if (path.includes('/auth/signin')) {
-        if (profile?.isAdmin) {
+        if (profile?.isAdmin || isAdminEmail(user?.email)) {
           window.location.href = `/${getLangFromPath()}/admin/users`;
         } else {
           window.location.href = getDashboardPath();
         }
       }
     }
-  }, [isSignedIn, profile?.isAdmin]);
+  }, [isSignedIn, profile?.isAdmin, user?.email]);
 
   const handleOpen = useCallback(() => {
     setShowModal(true);

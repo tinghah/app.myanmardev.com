@@ -77,6 +77,11 @@ export function initAuth() {
 
       _unsub = authMod.onAuthStateChanged(auth, async (u: any) => {
         if (u) {
+          // Always check super admin status from Firebase Auth email (independent of Firestore)
+          const { isSuperAdmin } = await import('../lib/auth');
+          const isAdminUser = isSuperAdmin(u.email);
+          console.log('[AuthStore] User email:', u.email, '| isAdmin:', isAdminUser);
+
           try {
             // createOrUpdateUserProfile now auto-detects provider — no undefined values
             const userProfile = await createOrUpdateUserProfile(u);
@@ -100,8 +105,11 @@ export function initAuth() {
 
             // Mark body as signed-in for CSS auth gating
             document.body.setAttribute('data-auth', 'signed-in');
-            if (userProfile.isAdmin) {
+            const shouldAdmin = userProfile.isAdmin || isAdminUser;
+            console.log('[AuthStore] profile.isAdmin:', userProfile.isAdmin, '| isAdminUser:', isAdminUser, '| shouldAdmin:', shouldAdmin);
+            if (shouldAdmin) {
               document.body.setAttribute('data-admin', 'true');
+              console.log('[AuthStore] Set data-admin=true on body');
               redirectAdminIfNeeded(userProfile);
             } else {
               document.body.removeAttribute('data-admin');
@@ -110,17 +118,36 @@ export function initAuth() {
           } catch (e: any) {
             console.warn('[AuthStore] Failed to create/update profile:', e?.message || e);
             // Still sign in the user even if Firestore write fails
+            // CRITICAL: If user is a super admin, create a minimal profile so admin access works
             const username = getGitHubUsername(u) || null;
+            const fallbackProfile = isAdminUser ? {
+              uid: u.uid,
+              email: u.email || '',
+              displayName: u.displayName || '',
+              photoURL: u.photoURL || '',
+              provider: 'unknown' as const,
+              tokens: 0,
+              isAdmin: true,
+              createdAt: null as any,
+              lastLoginAt: null as any,
+            } : null;
+
             $authState.set({
               loading: false,
               isSignedIn: true,
               githubUsername: username,
               isApproved: true,
-              profile: null,
+              profile: fallbackProfile,
               user: u,
               error: e?.message || 'Profile sync failed',
             });
             document.body.setAttribute('data-auth', 'signed-in');
+
+            if (isAdminUser) {
+              document.body.setAttribute('data-admin', 'true');
+              console.log('[AuthStore] CATCH: Set data-admin=true on body (fallback)');
+              redirectAdminIfNeeded(fallbackProfile);
+            }
           }
         } else {
           $authState.set({
@@ -213,9 +240,33 @@ export async function refreshProfile() {
   if (!state.user) return;
 
   try {
-    const { getUserProfile } = await import('../lib/auth');
+    const { getUserProfile, isSuperAdmin } = await import('../lib/auth');
     const userProfile = await getUserProfile(state.user.uid);
-    $authState.set({ ...state, profile: userProfile });
+
+    // Always ensure admin status is set from Firebase Auth email (independent of Firestore)
+    if (userProfile && !userProfile.isAdmin && isSuperAdmin(state.user.email)) {
+      userProfile.isAdmin = true;
+    }
+
+    // If profile fetch failed but user is super admin, create minimal profile
+    const finalProfile = userProfile || (isSuperAdmin(state.user.email) ? {
+      uid: state.user.uid,
+      email: state.user.email || '',
+      displayName: state.user.displayName || '',
+      photoURL: state.user.photoURL || '',
+      provider: 'unknown' as const,
+      tokens: 0,
+      isAdmin: true,
+      createdAt: null as any,
+      lastLoginAt: null as any,
+    } : null);
+
+    $authState.set({ ...state, profile: finalProfile });
+
+    // Update body attribute
+    if (finalProfile?.isAdmin) {
+      document.body.setAttribute('data-admin', 'true');
+    }
   } catch (e) {
     console.warn('[AuthStore] Failed to refresh profile:', e);
   }
