@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { checkSubdomain, createSubdomain, getDomains } from '../lib/api';
 import { useStore } from '@nanostores/react';
 import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
-import { deductTokens } from '../lib/auth';
 import { createProductOrder } from '../lib/orders';
 import SignInModal from './SignInModal';
 import BuyTokensModal from './BuyTokensModal';
@@ -12,6 +11,28 @@ import BuyTokensModal from './BuyTokensModal';
 type Step = 1 | 2 | 3;
 type Platform = 'github' | 'vercel' | 'netlify' | 'custom';
 type Status = 'idle' | 'checking' | 'available' | 'unavailable' | 'creating' | 'success' | 'error';
+
+// ─── Suggestions Generator ────────────────────────────────
+
+function generateSuggestions(name: string): string[] {
+  const suggestions: string[] = [];
+  const suffixes = ['-dev', '-io', '-mm', '-app', '-web'];
+  const prefixes = ['dev-', 'my-', 'the-'];
+
+  // Add suffixes
+  for (const suffix of suffixes) {
+    if (suggestions.length >= 4) break;
+    suggestions.push(`${name}${suffix}`);
+  }
+
+  // Add prefixes
+  for (const prefix of prefixes) {
+    if (suggestions.length >= 5) break;
+    suggestions.push(`${prefix}${name}`);
+  }
+
+  return suggestions;
+}
 
 interface PlatformOption {
   value: Platform;
@@ -171,6 +192,7 @@ export default function SubdomainBuilder() {
   const [message, setMessage] = useState('');
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [showBuyTokensModal, setShowBuyTokensModal] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const selectedPlatform = PLATFORMS.find((p) => p.value === platform)!;
 
@@ -210,10 +232,12 @@ export default function SubdomainBuilder() {
       if (result.available) {
         setStatus('available');
         setMessage(`${trimmed}.${domain} is available`);
+        setSuggestions([]);
         setStep(2);
       } else {
         setStatus('unavailable');
         setMessage(`${trimmed}.${domain} is already taken.`);
+        setSuggestions(generateSuggestions(trimmed));
       }
     } catch (err: any) {
       setStatus('error');
@@ -236,7 +260,7 @@ export default function SubdomainBuilder() {
     setStatus('creating');
     setMessage('Creating DNS record...');
     try {
-      // 1. Create the subdomain
+      // 1. Create the subdomain (Worker deducts tokens server-side)
       const result = await createSubdomain({
         subdomain: subdomain.trim().toLowerCase(),
         domain,
@@ -244,13 +268,7 @@ export default function SubdomainBuilder() {
         sourceUrl: sourceUrl.trim(),
       });
 
-      // 2. Deduct tokens
-      const deducted = await deductTokens(profile.uid, TOKEN_COST);
-      if (!deducted) {
-        throw new Error('Insufficient tokens. Please purchase more tokens.');
-      }
-
-      // 3. Record the order
+      // 2. Record the order (does not deduct tokens, just logs the transaction)
       await createProductOrder(
         profile.uid,
         profile.email,
@@ -266,7 +284,7 @@ export default function SubdomainBuilder() {
         }
       );
 
-      // 4. Refresh profile to update token balance
+      // 3. Refresh profile to update token balance
       await refreshProfile();
 
       setStatus('success');
@@ -279,7 +297,7 @@ export default function SubdomainBuilder() {
 
   const handleReset = useCallback(() => {
     setStep(1); setSubdomain(''); setPlatform('github');
-    setSourceUrl(''); setStatus('idle'); setMessage('');
+    setSourceUrl(''); setStatus('idle'); setMessage(''); setSuggestions([]);
   }, []);
 
   const cnamePreview = (() => {
@@ -313,7 +331,7 @@ export default function SubdomainBuilder() {
             <input
               type="text"
               value={subdomain}
-              onChange={(e) => { setSubdomain(e.target.value); if (status !== 'idle') { setStatus('idle'); setMessage(''); } }}
+              onChange={(e) => { setSubdomain(e.target.value); if (status !== 'idle') { setStatus('idle'); setMessage(''); setSuggestions([]); } }}
               onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
               placeholder="myapp"
               className="tg-input"
@@ -395,6 +413,65 @@ export default function SubdomainBuilder() {
             </button>
           </div>
           <StatusAlert status={status} message={message} />
+
+          {/* Suggestions when name is taken */}
+          {status === 'unavailable' && suggestions.length > 0 && (
+            <div style={{
+              marginTop: '0.75rem',
+              padding: '0.9rem 1rem',
+              borderRadius: '6px',
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+              animation: 'tgFadeIn 0.3s ease-out',
+            }}>
+              <div style={{
+                fontFamily: 'var(--mono)',
+                fontSize: '0.6875rem',
+                fontWeight: 600,
+                color: 'var(--muted)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                marginBottom: '0.5rem',
+              }}>
+                Try these instead:
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                {suggestions.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => { setSubdomain(s); setStatus('idle'); setMessage(''); setSuggestions([]); }}
+                    style={{
+                      padding: '0.35rem 0.6rem',
+                      borderRadius: '4px',
+                      border: '1px solid var(--border)',
+                      background: 'color-mix(in srgb, var(--accent) 8%, transparent)',
+                      color: 'var(--accent)',
+                      fontFamily: 'var(--mono)',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+              <div style={{
+                marginTop: '0.6rem',
+                fontFamily: 'var(--mono)',
+                fontSize: '0.6875rem',
+                color: 'var(--muted)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+              }}>
+                <span style={{ color: '#E8A33D' }}>ℹ</span>
+                This subdomain was claimed by another user.
+              </div>
+            </div>
+          )}
         </div>
       )}
 
