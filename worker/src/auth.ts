@@ -183,7 +183,44 @@ export async function deductTokens(
     throw new Error(`Failed to deduct tokens: ${errorText}`);
   }
 
+  // Post-increment balance check: read the balance again to detect race conditions.
+  // If balance went negative (another request spent the same tokens concurrently),
+  // immediately refund to prevent underflow.
+  const newBalance = await getUserTokens(env, uid, `Bearer ${adminToken}`);
+  if (newBalance < 0) {
+    await refundTokens(env, uid, amount);
+    throw new Error('Insufficient tokens: concurrent purchase detected, balance was insufficient.');
+  }
+
   return current - amount;
+}
+
+export async function refundTokens(
+  env: Env,
+  uid: string,
+  amount: number,
+): Promise<void> {
+  const adminToken = await getAdminAccessToken(env);
+  const url = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents:commit`;
+  const reqBody = {
+    writes: [{
+      transform: {
+        document: `projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${uid}`,
+        fieldTransforms: [{
+          fieldPath: 'tokens',
+          increment: { integerValue: amount.toString() }
+        }]
+      }
+    }]
+  };
+  await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${adminToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(reqBody),
+  });
 }
 
 export async function isAdmin(env: Env, uid: string, authHeader: string): Promise<boolean> {

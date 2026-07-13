@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useStore } from '@nanostores/react';
 import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { getUserOrders, type Order, type ProductOrder } from '../lib/orders';
+import { getAuthInstance } from '../lib/firebase';
+
+const DOMAIN = 'myanmardev.com';
 
 export default function MySubdomains() {
   const { user } = useStore($authState);
@@ -60,7 +63,7 @@ export default function MySubdomains() {
   };
 
   const handleCopyCname = (subdomain: string, id: string) => {
-    const cname = `${subdomain}.myanmardev.com`;
+    const cname = `${subdomain}.${DOMAIN}`;
     navigator.clipboard.writeText(cname).then(() => {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
@@ -75,6 +78,33 @@ export default function MySubdomains() {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
     });
+  };
+
+  const handleDelete = async (subdomain: string) => {
+    if (!confirm(`Delete ${subdomain}.${DOMAIN}? This cannot be undone.`)) return;
+
+    try {
+      const token = await getAuthInstance().currentUser?.getIdToken();
+      const API_URL = import.meta.env.PUBLIC_WORKER_API_URL || 'http://localhost:8787';
+      const res = await fetch(`${API_URL}/api/delete-subdomain`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ subdomain }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Delete failed');
+      }
+
+      // Remove from local state
+      setSubdomains((prev) => prev.filter((s) => s.details?.subdomain !== subdomain));
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete subdomain');
+    }
   };
 
   if (loading) {
@@ -225,7 +255,7 @@ export default function MySubdomains() {
               fontWeight: 600,
               color: 'var(--ink)',
             }}>
-              {subdomainName}.myanmardev.com
+              {subdomainName}.{DOMAIN}
             </div>
 
             {/* Platform */}
@@ -267,7 +297,7 @@ export default function MySubdomains() {
             {/* Actions */}
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button
-                onClick={() => window.open(`https://${subdomainName}.myanmardev.com`, '_blank')}
+                onClick={() => window.open(`https://${subdomainName}.${DOMAIN}`, '_blank')}
                 title="View subdomain"
                 style={{
                   padding: '0.4rem 0.6rem',
@@ -323,6 +353,30 @@ export default function MySubdomains() {
                 }}
               >
                 {copiedId === orderId ? 'Copied!' : 'Copy CNAME'}
+              </button>
+              <button
+                onClick={() => handleDelete(subdomainName)}
+                title="Delete subdomain"
+                style={{
+                  padding: '0.4rem 0.6rem',
+                  background: 'transparent',
+                  color: '#EA4335',
+                  border: '1px solid #EA4335',
+                  borderRadius: '4px',
+                  fontFamily: 'var(--mono)',
+                  fontSize: '0.6875rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = 'color-mix(in srgb, #EA4335 10%, transparent)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                Delete
               </button>
             </div>
           </div>

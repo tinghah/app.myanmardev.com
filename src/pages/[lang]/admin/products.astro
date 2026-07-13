@@ -1,0 +1,17 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import ProductsManager from '../../../components/admin/ProductsManager';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'my' } }
+  ];
+}
+
+const { lang } = Astro.params;
+---
+
+<AdminLayout title="Product Management" lang={lang}>
+  <ProductsManager client:load />
+</AdminLayout>

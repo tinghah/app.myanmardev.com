@@ -1,0 +1,17 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import AnalyticsDashboard from '../../../components/admin/AnalyticsDashboard';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'my' } }
+  ];
+}
+
+const { lang } = Astro.params;
+---
+
+<AdminLayout title="Analytics" lang={lang}>
+  <AnalyticsDashboard client:load />
+</AdminLayout>

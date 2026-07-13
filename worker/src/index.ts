@@ -1,4 +1,4 @@
-import { verifyFirebaseToken, getUserTokens, isAdmin, deductTokens } from './auth';
+import { verifyFirebaseToken, getUserTokens, isAdmin, deductTokens, refundTokens, getAdminAccessToken } from './auth';
 import { checkDnsRecord, createDnsRecord, deleteDnsRecord, findDnsRecordId } from './cloudflare-dns';
 import type { Env } from './env';
 
@@ -9,8 +9,9 @@ const SUBDOMAIN_COST = 10;
 function corsHeaders(origin: string | null): Record<string, string> {
   return {
     'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Credentials': 'true',
   };
 }
 
@@ -94,6 +95,38 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       return json({ status: 'ok' }, 200, origin);
     }
 
+    // Get products (public)
+    if (path === '/api/products' && method === 'GET') {
+      const dbToken = await getAdminAccessToken(env);
+      const productsUrl = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/products`;
+      const res = await fetch(productsUrl, {
+        headers: { Authorization: `Bearer ${dbToken}` },
+      });
+      if (!res.ok) return json({ error: 'Failed to fetch products' }, 500, origin);
+
+      const data = await res.json() as { documents?: any[] };
+      const products = (data.documents || []).map((doc: any) => {
+        const fields = doc.fields || {};
+        return {
+          id: doc.name?.split('/').pop(),
+          name: fields.name?.stringValue || '',
+          slug: fields.slug?.stringValue || '',
+          description: fields.description?.stringValue || '',
+          features: fields.features?.arrayValue?.values?.map((v: any) => v.stringValue) || [],
+          priceUSD: fields.priceUSD?.doubleValue || 0,
+          priceMMK: fields.priceMMK?.integerValue || 0,
+          tokenCost: fields.tokenCost?.integerValue || 10,
+          status: fields.status?.stringValue || 'comingsoon',
+          category: fields.category?.stringValue || '',
+          icon: fields.icon?.stringValue || '',
+          sortOrder: fields.sortOrder?.integerValue || 0,
+        };
+      });
+
+      products.sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
+      return json({ products }, 200, origin);
+    }
+
     // Authenticated endpoints
     const authHeader = request.headers.get('Authorization');
     const { uid } = await verifyFirebaseToken(env, authHeader);
@@ -147,10 +180,23 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       await deductTokens(env, uid, bearerToken, SUBDOMAIN_COST);
 
       // Create DNS record
-      const recordId = await createDnsRecord(env, subdomain, target, type);
-      
-      // Create TXT record for ownership verification
-      const txtRecordId = await createDnsRecord(env, subdomain, `v=myanmardev-owner=${uid}`, 'TXT');
+      let recordId: string;
+      try {
+        recordId = await createDnsRecord(env, subdomain, target, type);
+      } catch (err) {
+        return json({ error: 'Failed to create DNS record' }, 500, origin);
+      }
+
+      // Create TXT record for ownership verification — rollback on failure
+      let txtRecordId: string;
+      try {
+        txtRecordId = await createDnsRecord(env, subdomain, `v=myanmardev-owner=${uid}`, 'TXT');
+      } catch (err) {
+        // Rollback: delete the CNAME/A record and refund tokens
+        try { await deleteDnsRecord(env, recordId); } catch {}
+        try { await refundTokens(env, uid, SUBDOMAIN_COST); } catch {}
+        return json({ error: 'Failed to create ownership record. DNS record rolled back.' }, 500, origin);
+      }
 
       // Return success
       return json({ success: true, recordId, txtRecordId, tokensDeducted: SUBDOMAIN_COST }, 200, origin);
@@ -168,6 +214,18 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       const recordId = await findDnsRecordId(env, subdomain);
       if (!recordId) {
         return json({ error: 'Subdomain not found' }, 404, origin);
+      }
+
+      // Verify ownership via TXT record
+      const name = `${subdomain}.${env.DOMAIN_NAME}`;
+      const cfRes = await fetch(
+        `https://api.cloudflare.com/client/v4/zones/${env.CLOUDFLARE_ZONE_ID}/dns_records?name=${name}&type=TXT`,
+        { headers: { Authorization: `Bearer ${env.CLOUDFLARE_API_TOKEN}`, 'Content-Type': 'application/json' } },
+      );
+      const cfData = await cfRes.json() as { result?: { id: string; content: string }[] };
+      const txtRecord = cfData.result?.find((r) => r.content?.includes(uid));
+      if (!txtRecord) {
+        return json({ error: 'You do not own this subdomain' }, 403, origin);
       }
 
       await deleteDnsRecord(env, recordId);
