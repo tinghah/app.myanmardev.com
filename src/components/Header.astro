@@ -33,6 +33,7 @@ const { lang } = Astro.props;
       <a href={`/${lang}/#products`} class="nav-link user-link">{t(lang, 'nav.products')}</a>
       <a href={`/${lang}/#pricing`} class="nav-link user-link">{t(lang, 'nav.pricing')}</a>
       <a href={`/${lang}/dashboard`} class="nav-link user-link">{t(lang, 'nav.myBusiness')}</a>
+      <a href={`/${lang}/admin/analytics`} class="nav-link admin-link" style="display: none;">Analytics</a>
       <a href={`/${lang}/admin/users`} class="nav-link admin-link" style="display: none;">Users</a>
       <a href={`/${lang}/admin/codes`} class="nav-link admin-link" style="display: none;">Redeem Codes</a>
       <a href={`/${lang}/admin/orders`} class="nav-link admin-link" style="display: none;">Orders</a>
@@ -59,6 +60,7 @@ const { lang } = Astro.props;
     <a href={`/${lang}/#products`} class="mobile-link user-link">{t(lang, 'nav.products')}</a>
     <a href={`/${lang}/#pricing`} class="mobile-link user-link">{t(lang, 'nav.pricing')}</a>
     <a href={`/${lang}/dashboard`} class="mobile-link user-link">{t(lang, 'nav.myBusiness')}</a>
+    <a href={`/${lang}/admin/analytics`} class="mobile-link admin-link" style="display: none;">Analytics</a>
     <a href={`/${lang}/admin/users`} class="mobile-link admin-link" style="display: none;">Users</a>
     <a href={`/${lang}/admin/codes`} class="mobile-link admin-link" style="display: none;">Redeem Codes</a>
     <a href={`/${lang}/admin/orders`} class="mobile-link admin-link" style="display: none;">Orders</a>
