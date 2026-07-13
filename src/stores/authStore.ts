@@ -85,6 +85,23 @@ export function initAuth() {
           try {
             // createOrUpdateUserProfile now auto-detects provider — no undefined values
             const userProfile = await createOrUpdateUserProfile(u);
+
+            // Check if user is disabled by admin
+            if (userProfile.disabled) {
+              console.warn('[AuthStore] User is disabled:', u.email);
+              await authMod.signOut(auth);
+              $authState.set({
+                loading: false,
+                isSignedIn: false,
+                githubUsername: null,
+                isApproved: false,
+                profile: null,
+                user: null,
+                error: 'Your account has been disabled. Please contact admin.',
+              });
+              return;
+            }
+
             const username = userProfile.githubUsername || getGitHubUsername(u) || null;
 
             // Only check approved_users for GitHub users (Google users are always approved)

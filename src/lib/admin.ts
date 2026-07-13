@@ -4,6 +4,8 @@ import {
   getDocs,
   setDoc,
   updateDoc,
+  deleteDoc,
+  increment,
   query,
   orderBy,
   Timestamp,
@@ -22,6 +24,44 @@ export async function getAllUsers(): Promise<UserProfile[]> {
 
   const snapshot = await getDocs(q);
   return snapshot.docs.map((doc) => doc.data() as UserProfile);
+}
+
+/**
+ * Disable a user (sets disabled field to true)
+ */
+export async function disableUser(uid: string): Promise<void> {
+  const db = getDB();
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, { disabled: true });
+}
+
+/**
+ * Enable a user (sets disabled field to false)
+ */
+export async function enableUser(uid: string): Promise<void> {
+  const db = getDB();
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, { disabled: false });
+}
+
+/**
+ * Delete a user document from Firestore
+ */
+export async function deleteUser(uid: string): Promise<void> {
+  const db = getDB();
+  const userRef = doc(db, 'users', uid);
+  await deleteDoc(userRef);
+}
+
+/**
+ * Add tokens to a user (admin manual topup)
+ */
+export async function addUserTokens(uid: string, amount: number): Promise<void> {
+  const db = getDB();
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, {
+    tokens: increment(amount),
+  });
 }
 
 // ─── Order Management ────────────────────────────────────

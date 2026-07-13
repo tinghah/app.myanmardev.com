@@ -12,6 +12,7 @@ export interface UserProfile {
   githubUsername?: string;
   tokens: number;
   isAdmin?: boolean;
+  disabled?: boolean;
   createdAt: Timestamp;
   lastLoginAt: Timestamp;
 }
