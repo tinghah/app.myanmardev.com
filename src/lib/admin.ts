@@ -10,7 +10,7 @@ import {
   orderBy,
   Timestamp,
 } from 'firebase/firestore';
-import { getDB } from './firebase';
+import { getDB, getAuthInstance } from './firebase';
 import type { UserProfile } from './auth';
 import type { Order } from './orders';
 import type { RedeemCode } from './redeem';
@@ -62,6 +62,33 @@ export async function addUserTokens(uid: string, amount: number): Promise<void> 
   await updateDoc(userRef, {
     tokens: increment(amount),
   });
+}
+
+/**
+ * Set or remove admin role for a user via the Worker service account.
+ * This bypasses Firestore security rules that block client-side isAdmin writes.
+ */
+export async function setUserRole(uid: string, isAdmin: boolean): Promise<void> {
+  const auth = getAuthInstance();
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated');
+
+  const token = await user.getIdToken();
+  const API_URL = import.meta.env.PUBLIC_WORKER_API_URL || 'http://localhost:8787';
+
+  const res = await fetch(`${API_URL}/api/admin/set-admin-role`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ uid, isAdmin }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(err.error || 'Failed to set admin role');
+  }
 }
 
 // ─── Order Management ────────────────────────────────────

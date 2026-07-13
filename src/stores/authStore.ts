@@ -86,6 +86,11 @@ export function initAuth() {
             // createOrUpdateUserProfile now auto-detects provider — no undefined values
             const userProfile = await createOrUpdateUserProfile(u);
 
+            // Ensure email is always set from Firebase Auth
+            if (!userProfile.email && u.email) {
+              userProfile.email = u.email;
+            }
+
             // Check if user is disabled by admin
             if (userProfile.disabled) {
               console.warn('[AuthStore] User is disabled:', u.email);
@@ -119,6 +124,34 @@ export function initAuth() {
               user: u,
               error: null,
             });
+
+            // ─── Auto-sync admin role to Firestore ──────────────────────
+            // If user is a hardcoded super admin but isAdmin is not yet in
+            // their Firestore document, call the Worker to set it via the
+            // service account (bypasses Firestore security rules).
+            if (isAdminUser && !userProfile.isAdmin) {
+              try {
+                const API_URL = import.meta.env.PUBLIC_WORKER_API_URL || 'http://localhost:8787';
+                const idToken = await u.getIdToken();
+                const syncRes = await fetch(`${API_URL}/api/admin/set-admin-role`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${idToken}`,
+                  },
+                  body: JSON.stringify({ uid: u.uid, isAdmin: true }),
+                });
+                if (syncRes.ok) {
+                  console.log('[AuthStore] Synced isAdmin=true to Firestore for', u.email);
+                  userProfile.isAdmin = true;
+                  $authState.set({ ...$authState.get(), profile: userProfile });
+                } else {
+                  console.warn('[AuthStore] Failed to sync admin role:', await syncRes.text());
+                }
+              } catch (e) {
+                console.warn('[AuthStore] Admin role sync failed (non-critical):', e);
+              }
+            }
 
             // Mark body as signed-in for CSS auth gating
             document.body.setAttribute('data-auth', 'signed-in');
