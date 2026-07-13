@@ -1,4 +1,5 @@
-import { getAuthInstance } from './firebase';
+import { getAuthInstance, getDB } from './firebase';
+import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
 import type { UserProfile } from './auth';
 import type { Order } from './orders';
 import type { RedeemCode } from './redeem';
@@ -37,11 +38,41 @@ async function workerAdminPost(path: string, body: any): Promise<any> {
   return res.json();
 }
 
+// ─── Firestore Direct Access (for read operations) ──────────
+
+function mapFirestoreUser(doc: any): UserProfile {
+  const data = doc.data();
+  return {
+    uid: doc.id,
+    email: data.email || '',
+    displayName: data.displayName || '',
+    photoURL: data.photoURL || '',
+    provider: data.provider || 'unknown',
+    githubUsername: data.githubUsername || '',
+    tokens: data.tokens || 0,
+    isAdmin: data.isAdmin || false,
+    disabled: data.disabled || false,
+    createdAt: data.createdAt,
+    lastLoginAt: data.lastLoginAt,
+  } as UserProfile;
+}
+
 // ─── User Management ─────────────────────────────────────────
 
 export async function getAllUsers(): Promise<UserProfile[]> {
-  const { users } = await workerAdminGet('/api/admin/all-users');
-  return users;
+  try {
+    // Try worker API first
+    const { users } = await workerAdminGet('/api/admin/all-users');
+    return users;
+  } catch (workerError) {
+    // Fallback to direct Firestore access
+    console.warn('Worker API failed, falling back to Firestore:', workerError);
+    const db = getDB();
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(mapFirestoreUser);
+  }
 }
 
 export async function disableUser(uid: string): Promise<void> {
@@ -67,15 +98,43 @@ export async function setUserRole(uid: string, isAdmin: boolean): Promise<void> 
 // ─── Order Management ────────────────────────────────────────
 
 export async function getAllOrders(): Promise<Order[]> {
-  const { orders } = await workerAdminGet('/api/admin/all-orders');
-  return orders;
+  try {
+    // Try worker API first
+    const { orders } = await workerAdminGet('/api/admin/all-orders');
+    return orders;
+  } catch (workerError) {
+    // Fallback to direct Firestore access
+    console.warn('Worker API failed, falling back to Firestore:', workerError);
+    const db = getDB();
+    const ordersRef = collection(db, 'orders');
+    const q = query(ordersRef, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Order[];
+  }
 }
 
 // ─── Redeem Code Management ──────────────────────────────────
 
 export async function getAllCodes(): Promise<RedeemCode[]> {
-  const { codes } = await workerAdminGet('/api/admin/all-codes');
-  return codes;
+  try {
+    // Try worker API first
+    const { codes } = await workerAdminGet('/api/admin/all-codes');
+    return codes;
+  } catch (workerError) {
+    // Fallback to direct Firestore access
+    console.warn('Worker API failed, falling back to Firestore:', workerError);
+    const db = getDB();
+    const codesRef = collection(db, 'redeemCodes');
+    const q = query(codesRef, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      code: doc.id,
+      ...doc.data(),
+    })) as RedeemCode[];
+  }
 }
 
 export async function createRedeemCode(

@@ -1,0 +1,14 @@
+# Gitleaks configuration for myanmardev.com
+# https://github.com/gitleaks/gitleaks
+
+[allowlist]
+  description = "Global allowlist"
+  paths = [
+    '''migrate/.*''',  # Historical migration files (removed)
+  ]
+  commits = [
+    "e0ac6131dfe9492b7de74305dc1e456750933c0e",  # Old commit with migrate/README.md
+  ]
+  regexes = [
+    '''PUBLIC_FIREBASE_API_KEY.*''',  # Firebase public API keys are designed for client-side use
+  ]

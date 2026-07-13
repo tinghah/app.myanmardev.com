@@ -34,10 +34,26 @@ export async function getAllProducts(): Promise<Product[]> {
   const productsRef = collection(db, 'products');
   const q = query(productsRef, orderBy('sortOrder', 'asc'));
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Product[];
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    // Map database fields to Product interface (handle legacy field names)
+    return {
+      id: doc.id,
+      name: data.name || data.title || '',
+      slug: data.slug || '',
+      description: data.description || data['description '] || '',
+      features: data.features || [],
+      priceUSD: data.priceUSD || 0,
+      priceMMK: data.priceMMK || 0,
+      tokenCost: data.tokenCost || data.tokenPrice || 10,
+      status: data.status || (data.active ? 'live' : 'comingsoon'),
+      category: data.category || '',
+      icon: data.icon || data['icon    '] || '📦',
+      sortOrder: data.sortOrder || 0,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    } as Product;
+  });
 }
 
 export async function getLiveProducts(): Promise<Product[]> {
@@ -50,7 +66,23 @@ export async function getProduct(id: string): Promise<Product | null> {
   const docRef = doc(db, 'products', id);
   const snap = await getDoc(docRef);
   if (snap.exists()) {
-    return { id: snap.id, ...snap.data() } as Product;
+    const data = snap.data();
+    return {
+      id: snap.id,
+      name: data.name || data.title || '',
+      slug: data.slug || '',
+      description: data.description || data['description '] || '',
+      features: data.features || [],
+      priceUSD: data.priceUSD || 0,
+      priceMMK: data.priceMMK || 0,
+      tokenCost: data.tokenCost || data.tokenPrice || 10,
+      status: data.status || (data.active ? 'live' : 'comingsoon'),
+      category: data.category || '',
+      icon: data.icon || data['icon    '] || '📦',
+      sortOrder: data.sortOrder || 0,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    } as Product;
   }
   return null;
 }
