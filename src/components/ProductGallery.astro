@@ -14,7 +14,7 @@ const products = [
 ];
 ---
 
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem;margin-top:2.5rem">
+<div style="display:grid;grid-template-columns:1fr;gap:1.25rem;margin-top:2.5rem;padding:0 0.5rem">
   {products.map((product) => (
     <div
       class="product-card rise"
@@ -55,5 +55,16 @@ const products = [
     border-color: var(--border-accent) !important;
     transform: translateY(-2px);
     box-shadow: 0 0 24px var(--glow), 0 8px 24px rgba(0,0,0,0.2);
+  }
+  @media (min-width: 640px) {
+    div:has(> .product-card) {
+      grid-template-columns: repeat(2, 1fr) !important;
+      padding: 0 !important;
+    }
+  }
+  @media (min-width: 960px) {
+    div:has(> .product-card) {
+      grid-template-columns: repeat(3, 1fr) !important;
+    }
   }
 </style>

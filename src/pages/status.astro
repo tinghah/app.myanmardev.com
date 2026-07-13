@@ -1,0 +1,169 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import { t, type Language } from '../i18n/utils';
+
+const lang: Language = 'en';
+const title = 'System Status | myanmardev.com';
+const description = 'Real-time system status for myanmardev.com services.';
+---
+
+<Layout title={title} description={description} lang={lang}>
+  <Header lang={lang} />
+
+  <main style="padding:clamp(2rem,5vw,4rem) clamp(1.25rem,4vw,3rem)">
+    <div style="max-width:640px;margin:0 auto">
+      <!-- Breadcrumb -->
+      <nav class="mono rise" style="font-size:0.6875rem;color:var(--muted);margin-bottom:2rem;letter-spacing:0.02em">
+        <a href="/" style="color:var(--muted);transition:color 0.15s">Home</a>
+        <span style="margin:0 0.5rem;color:var(--border)">/</span>
+        <span style="color:var(--accent)">Status</span>
+      </nav>
+
+      <!-- Section Header -->
+      <div class="sx rise"><b></b> <span>/ status</span></div>
+      <h1 class="h-section rise" style="margin-top:.9rem">System Status</h1>
+      <p class="lede rise" style="margin:.6rem 0 2rem">
+        Real-time health monitoring for all myanmardev.com services.
+      </p>
+
+      <!-- Status Card -->
+      <div id="status-card" style="
+        padding: 1.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        animation: tgFadeIn 0.3s ease-out;
+      ">
+        <!-- API Status -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:0.6rem">
+            <span style="font-size:1.1rem">⚡</span>
+            <div>
+              <div style="font-family:var(--mono);font-size:0.8125rem;font-weight:600;color:var(--ink)">API Service</div>
+              <div style="font-family:var(--mono);font-size:0.6875rem;color:var(--muted)">Cloudflare Worker</div>
+            </div>
+          </div>
+          <div id="api-status" style="
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-family: var(--mono);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            background: color-mix(in srgb, #E8A33D 15%, transparent);
+            color: #E8A33D;
+          ">CHECKING</div>
+        </div>
+
+        <!-- DNS Status -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:0.6rem">
+            <span style="font-size:1.1rem">🌐</span>
+            <div>
+              <div style="font-family:var(--mono);font-size:0.8125rem;font-weight:600;color:var(--ink)">DNS Service</div>
+              <div style="font-family:var(--mono);font-size:0.6875rem;color:var(--muted)">Cloudflare DNS</div>
+            </div>
+          </div>
+          <div id="dns-status" style="
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-family: var(--mono);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            background: color-mix(in srgb, #16a34a 15%, transparent);
+            color: #16a34a;
+          ">OPERATIONAL</div>
+        </div>
+
+        <!-- Frontend Status -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 0">
+          <div style="display:flex;align-items:center;gap:0.6rem">
+            <span style="font-size:1.1rem">🖥️</span>
+            <div>
+              <div style="font-family:var(--mono);font-size:0.8125rem;font-weight:600;color:var(--ink)">Frontend</div>
+              <div style="font-family:var(--mono);font-size:0.6875rem;color:var(--muted)">GitHub Pages</div>
+            </div>
+          </div>
+          <div id="frontend-status" style="
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-family: var(--mono);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            background: color-mix(in srgb, #16a34a 15%, transparent);
+            color: #16a34a;
+          ">OPERATIONAL</div>
+        </div>
+      </div>
+
+      <!-- Last Checked -->
+      <div style="margin-top:1rem;text-align:center;font-family:var(--mono);font-size:0.6875rem;color:var(--muted)">
+        Last checked: <span id="last-checked">--</span>
+      </div>
+
+      <!-- Auto-refresh note -->
+      <div style="margin-top:0.5rem;text-align:center;font-family:var(--mono);font-size:0.625rem;color:var(--muted);opacity:0.7">
+        Auto-refreshes every 60 seconds
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer style="border-top:1px solid var(--border);background:var(--surface);margin-top:4rem">
+    <div style="max-width:78rem;margin:0 auto;padding:clamp(2rem,4vw,3rem) clamp(1.25rem,4vw,3rem);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem">
+      <div>
+        <a href="/" style="font-family:var(--display);font-weight:700;font-size:1rem;letter-spacing:-.02em">
+          <span style="color:var(--accent)">myanmardev</span>.com
+        </a>
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <span style="font-family:var(--mono);color:var(--muted);font-size:.625rem;letter-spacing:0.02em">&copy; {new Date().getFullYear()} All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script is:inline>
+    const WORKER_URL = import.meta.env.PUBLIC_WORKER_API_URL || 'https://myanmardev-api.ting1630.workers.dev';
+
+    async function checkHealth() {
+      const apiEl = document.getElementById('api-status');
+      const lastCheckedEl = document.getElementById('last-checked');
+
+      try {
+        const res = await fetch(`${WORKER_URL}/api/health`, {
+          method: 'GET',
+          signal: AbortSignal.timeout(5000),
+        });
+
+        if (res.ok) {
+          apiEl.textContent = 'OPERATIONAL';
+          apiEl.style.background = 'color-mix(in srgb, #16a34a 15%, transparent)';
+          apiEl.style.color = '#16a34a';
+        } else {
+          apiEl.textContent = 'DEGRADED';
+          apiEl.style.background = 'color-mix(in srgb, #E8A33D 15%, transparent)';
+          apiEl.style.color = '#E8A33D';
+        }
+      } catch (e) {
+        apiEl.textContent = 'DOWN';
+        apiEl.style.background = 'color-mix(in srgb, #dc2626 15%, transparent)';
+        apiEl.style.color = '#dc2626';
+      }
+
+      lastCheckedEl.textContent = new Date().toLocaleTimeString();
+    }
+
+    // Initial check
+    checkHealth();
+
+    // Auto-refresh every 60 seconds
+    setInterval(checkHealth, 60000);
+  </script>
+
+  <style>
+    @keyframes tgFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: none; }
+    }
+  </style>
+</Layout>
