@@ -80,6 +80,7 @@ export function initAuth() {
           // Always check super admin status from Firebase Auth email (independent of Firestore)
           const { isSuperAdmin } = await import('../lib/auth');
           const isAdminUser = isSuperAdmin(u.email);
+          console.log('[AuthStore] User email:', u.email, '| isAdmin:', isAdminUser);
 
           try {
             // createOrUpdateUserProfile now auto-detects provider — no undefined values
@@ -104,8 +105,11 @@ export function initAuth() {
 
             // Mark body as signed-in for CSS auth gating
             document.body.setAttribute('data-auth', 'signed-in');
-            if (userProfile.isAdmin || isAdminUser) {
+            const shouldAdmin = userProfile.isAdmin || isAdminUser;
+            console.log('[AuthStore] profile.isAdmin:', userProfile.isAdmin, '| isAdminUser:', isAdminUser, '| shouldAdmin:', shouldAdmin);
+            if (shouldAdmin) {
               document.body.setAttribute('data-admin', 'true');
+              console.log('[AuthStore] Set data-admin=true on body');
               redirectAdminIfNeeded(userProfile);
             } else {
               document.body.removeAttribute('data-admin');
@@ -141,6 +145,7 @@ export function initAuth() {
 
             if (isAdminUser) {
               document.body.setAttribute('data-admin', 'true');
+              console.log('[AuthStore] CATCH: Set data-admin=true on body (fallback)');
               redirectAdminIfNeeded(fallbackProfile);
             }
           }
