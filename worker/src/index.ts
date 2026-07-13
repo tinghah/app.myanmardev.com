@@ -283,6 +283,205 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       return json({ success: true, uid: targetUid, isAdmin: isAdminValue }, 200, origin);
     }
 
+    // ─── Admin: Topup tokens ────────────────────────────────────────
+    if (path === '/api/admin/topup-tokens' && method === 'POST') {
+      const body = await request.json() as { uid?: string; amount?: number };
+      if (!body.uid || !body.amount || body.amount < 1) {
+        return json({ error: 'uid and amount (>=1) required' }, 400, origin);
+      }
+      const adminToken = await getAdminAccessToken(env);
+      const url = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents:commit`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          writes: [{
+            transform: {
+              document: `projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${body.uid}`,
+              fieldTransforms: [{ fieldPath: 'tokens', increment: { integerValue: body.amount.toString() } }],
+            },
+          }],
+        }),
+      });
+      if (!res.ok) return json({ error: 'Failed to topup tokens: ' + await res.text() }, 500, origin);
+      return json({ success: true }, 200, origin);
+    }
+
+    // ─── Admin: Create redeem code ──────────────────────────────────
+    if (path === '/api/admin/create-redeem-code' && method === 'POST') {
+      const body = await request.json() as { code?: string; tokenAmount?: number; maxUses?: number; validityDays?: number; createdBy?: string };
+      if (!body.code || !body.tokenAmount) return json({ error: 'code and tokenAmount required' }, 400, origin);
+      const adminToken = await getAdminAccessToken(env);
+      const codeUpper = body.code.trim().toUpperCase();
+      const now = new Date().toISOString();
+      let expiresAt: string | null = null;
+      if (body.validityDays && body.validityDays > 0) {
+        expiresAt = new Date(Date.now() + body.validityDays * 86400000).toISOString();
+      }
+      const url = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/redeemCodes/${codeUpper}`;
+      const fields: Record<string, any> = {
+        tokenAmount: { integerValue: body.tokenAmount.toString() },
+        maxUses: { integerValue: (body.maxUses || 100).toString() },
+        currentUses: { integerValue: '0' },
+        usedBy: { arrayValue: { values: [] } },
+        createdAt: { timestampValue: now },
+        createdBy: { stringValue: body.createdBy || 'admin' },
+      };
+      if (expiresAt) fields.expiresAt = { timestampValue: expiresAt };
+      const res = await fetch(url, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields }),
+      });
+      if (!res.ok) return json({ error: 'Failed to create code: ' + await res.text() }, 500, origin);
+      return json({ success: true, code: codeUpper }, 200, origin);
+    }
+
+    // ─── Admin: Get all users ───────────────────────────────────────
+    if (path === '/api/admin/all-users' && method === 'GET') {
+      const adminToken = await getAdminAccessToken(env);
+      const url = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/users?orderBy=createdAt&direction=DESC`;
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${adminToken}` } });
+      if (!res.ok) return json({ error: 'Failed to fetch users' }, 500, origin);
+      const data = await res.json() as { documents?: any[] };
+      const users = (data.documents || []).map((doc: any) => {
+        const f = doc.fields || {};
+        return {
+          uid: doc.name?.split('/').pop(),
+          email: f.email?.stringValue || '',
+          displayName: f.displayName?.stringValue || '',
+          photoURL: f.photoURL?.stringValue || '',
+          provider: f.provider?.stringValue || 'unknown',
+          githubUsername: f.githubUsername?.stringValue || '',
+          tokens: parseInt(f.tokens?.integerValue || '0'),
+          isAdmin: f.isAdmin?.booleanValue || false,
+          disabled: f.disabled?.booleanValue || false,
+          createdAt: f.createdAt?.timestampValue || null,
+          lastLoginAt: f.lastLoginAt?.timestampValue || null,
+        };
+      });
+      return json({ users }, 200, origin);
+    }
+
+    // ─── Admin: Get all orders ──────────────────────────────────────
+    if (path === '/api/admin/all-orders' && method === 'GET') {
+      const adminToken = await getAdminAccessToken(env);
+      const url = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/orders?orderBy=createdAt&direction=DESC`;
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${adminToken}` } });
+      if (!res.ok) return json({ error: 'Failed to fetch orders' }, 500, origin);
+      const data = await res.json() as { documents?: any[] };
+      const orders = (data.documents || []).map((doc: any) => {
+        const f = doc.fields || {};
+        return {
+          id: doc.name?.split('/').pop(),
+          userId: f.userId?.stringValue || '',
+          userEmail: f.userEmail?.stringValue || '',
+          type: f.type?.stringValue || '',
+          status: f.status?.stringValue || '',
+          tokenAmount: parseInt(f.tokenAmount?.integerValue || '0'),
+          tokensUsed: parseInt(f.tokensUsed?.integerValue || '0'),
+          priceUSD: parseFloat(f.priceUSD?.doubleValue || '0'),
+          paymentMethod: f.paymentMethod?.stringValue || '',
+          createdAt: f.createdAt?.timestampValue || null,
+          details: f.details?.mapValue?.fields ? Object.fromEntries(
+            Object.entries(f.details.mapValue.fields).map(([k, v]: [string, any]) => [k, v.stringValue || v.integerValue || v.booleanValue || ''])
+          ) : {},
+        };
+      });
+      return json({ orders }, 200, origin);
+    }
+
+    // ─── Admin: Get all redeem codes ────────────────────────────────
+    if (path === '/api/admin/all-codes' && method === 'GET') {
+      const adminToken = await getAdminAccessToken(env);
+      const url = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/redeemCodes?orderBy=createdAt&direction=DESC`;
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${adminToken}` } });
+      if (!res.ok) return json({ error: 'Failed to fetch codes' }, 500, origin);
+      const data = await res.json() as { documents?: any[] };
+      const codes = (data.documents || []).map((doc: any) => {
+        const f = doc.fields || {};
+        return {
+          code: doc.name?.split('/').pop(),
+          tokenAmount: parseInt(f.tokenAmount?.integerValue || '0'),
+          maxUses: parseInt(f.maxUses?.integerValue || '0'),
+          currentUses: parseInt(f.currentUses?.integerValue || '0'),
+          usedBy: f.usedBy?.arrayValue?.values?.map((v: any) => v.stringValue) || [],
+          expiresAt: f.expiresAt?.timestampValue || null,
+          createdAt: f.createdAt?.timestampValue || null,
+          createdBy: f.createdBy?.stringValue || '',
+        };
+      });
+      return json({ codes }, 200, origin);
+    }
+
+    // ─── Admin: Get analytics ───────────────────────────────────────
+    if (path === '/api/admin/analytics' && method === 'GET') {
+      const adminToken = await getAdminAccessToken(env);
+      const base = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents`;
+      const [usersRes, ordersRes, codesRes] = await Promise.all([
+        fetch(`${base}/users`, { headers: { Authorization: `Bearer ${adminToken}` } }),
+        fetch(`${base}/orders`, { headers: { Authorization: `Bearer ${adminToken}` } }),
+        fetch(`${base}/redeemCodes`, { headers: { Authorization: `Bearer ${adminToken}` } }),
+      ]);
+      const usersData = await usersRes.json() as { documents?: any[] };
+      const ordersData = await ordersRes.json() as { documents?: any[] };
+      const codesData = await codesRes.json() as { documents?: any[] };
+      const users = usersData.documents || [];
+      const orders = ordersData.documents || [];
+      const codes = codesData.documents || [];
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+      const totalTokens = users.reduce((s: number, d: any) => s + parseInt(d.fields?.tokens?.integerValue || '0'), 0);
+      const pendingOrders = orders.filter((d: any) => d.fields?.status?.stringValue === 'pending').length;
+      const completedOrders = orders.filter((d: any) => d.fields?.status?.stringValue === 'completed' || d.fields?.status?.stringValue === 'approved').length;
+      const revenue = orders.filter((d: any) => d.fields?.type?.stringValue === 'token_purchase' && (d.fields?.status?.stringValue === 'completed' || d.fields?.status?.stringValue === 'approved'))
+        .reduce((s: number, d: any) => s + parseFloat(d.fields?.priceUSD?.doubleValue || '0'), 0);
+      return json({
+        totalUsers: users.length,
+        usersToday: users.filter((d: any) => d.fields?.createdAt?.timestampValue >= todayStart).length,
+        usersThisWeek: users.filter((d: any) => d.fields?.createdAt?.timestampValue >= weekAgo).length,
+        totalTokensInCirculation: totalTokens,
+        totalOrders: orders.length,
+        pendingOrders,
+        completedOrders,
+        totalRevenue: revenue,
+        totalCodes: codes.length,
+        activeCodes: codes.filter((d: any) => {
+          const exp = d.fields?.expiresAt?.timestampValue;
+          const uses = parseInt(d.fields?.currentUses?.integerValue || '0');
+          const max = parseInt(d.fields?.maxUses?.integerValue || '0');
+          return (!exp || exp > now.toISOString()) && uses < max;
+        }).length,
+      }, 200, origin);
+    }
+
+    // ─── Admin: Disable/Enable/Delete user ──────────────────────────
+    if (path === '/api/admin/update-user' && method === 'POST') {
+      const body = await request.json() as { uid?: string; action?: string; value?: any };
+      if (!body.uid || !body.action) return json({ error: 'uid and action required' }, 400, origin);
+      const adminToken = await getAdminAccessToken(env);
+      const url = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${body.uid}`;
+      if (body.action === 'delete') {
+        const res = await fetch(url, { method: 'DELETE', headers: { Authorization: `Bearer ${adminToken}` } });
+        if (!res.ok) return json({ error: 'Failed to delete user' }, 500, origin);
+        return json({ success: true }, 200, origin);
+      }
+      const fieldPath = body.action;
+      const fieldValue = body.value;
+      let field: any;
+      if (typeof fieldValue === 'boolean') field = { booleanValue: fieldValue };
+      else if (typeof fieldValue === 'number') field = { integerValue: fieldValue.toString() };
+      else field = { stringValue: String(fieldValue) };
+      const res = await fetch(`${url}?updateMask.fieldPaths=${fieldPath}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: { [fieldPath]: field } }),
+      });
+      if (!res.ok) return json({ error: 'Failed to update user: ' + await res.text() }, 500, origin);
+      return json({ success: true }, 200, origin);
+    }
+
     // Verify USDT transaction
     if (path === '/api/verify-usdt' && method === 'POST') {
       const body = await request.json() as { txHash?: string };
