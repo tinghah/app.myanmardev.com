@@ -4,11 +4,13 @@ import {
   getDocs,
   setDoc,
   updateDoc,
+  deleteDoc,
+  increment,
   query,
   orderBy,
   Timestamp,
 } from 'firebase/firestore';
-import { getDB } from './firebase';
+import { getDB, getAuthInstance } from './firebase';
 import type { UserProfile } from './auth';
 import type { Order } from './orders';
 import type { RedeemCode } from './redeem';
@@ -22,6 +24,71 @@ export async function getAllUsers(): Promise<UserProfile[]> {
 
   const snapshot = await getDocs(q);
   return snapshot.docs.map((doc) => doc.data() as UserProfile);
+}
+
+/**
+ * Disable a user (sets disabled field to true)
+ */
+export async function disableUser(uid: string): Promise<void> {
+  const db = getDB();
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, { disabled: true });
+}
+
+/**
+ * Enable a user (sets disabled field to false)
+ */
+export async function enableUser(uid: string): Promise<void> {
+  const db = getDB();
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, { disabled: false });
+}
+
+/**
+ * Delete a user document from Firestore
+ */
+export async function deleteUser(uid: string): Promise<void> {
+  const db = getDB();
+  const userRef = doc(db, 'users', uid);
+  await deleteDoc(userRef);
+}
+
+/**
+ * Add tokens to a user (admin manual topup)
+ */
+export async function addUserTokens(uid: string, amount: number): Promise<void> {
+  const db = getDB();
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, {
+    tokens: increment(amount),
+  });
+}
+
+/**
+ * Set or remove admin role for a user via the Worker service account.
+ * This bypasses Firestore security rules that block client-side isAdmin writes.
+ */
+export async function setUserRole(uid: string, isAdmin: boolean): Promise<void> {
+  const auth = getAuthInstance();
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated');
+
+  const token = await user.getIdToken();
+  const API_URL = import.meta.env.PUBLIC_WORKER_API_URL || 'http://localhost:8787';
+
+  const res = await fetch(`${API_URL}/api/admin/set-admin-role`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ uid, isAdmin }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(err.error || 'Failed to set admin role');
+  }
 }
 
 // ─── Order Management ────────────────────────────────────

@@ -4,6 +4,12 @@ import type { Env } from './env';
 
 const SUBDOMAIN_COST = 10;
 
+// Hardcoded super admin emails — same list as src/lib/auth.ts
+const SUPER_ADMINS = [
+  'myanmardevadmin@gmail.com',
+  'ting.pouchen@gmail.com',
+];
+
 // --- CORS ---
 
 function corsHeaders(origin: string | null): Record<string, string> {
@@ -230,6 +236,51 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 
       await deleteDnsRecord(env, recordId);
       return json({ success: true }, 200, origin);
+    }
+
+    // ─── Admin: Set admin role (bypasses Firestore rules via service account) ───
+    // Only hardcoded super admins can call this. Uses the FIREBASE_CLIENT_EMAIL
+    // service account to write isAdmin directly, bypassing Firestore security rules.
+    if (path === '/api/admin/set-admin-role' && method === 'POST') {
+      const { email: callerEmail } = await verifyFirebaseToken(env, authHeader);
+
+      // Verify caller is a hardcoded super admin
+      const callerIsSuperAdmin = SUPER_ADMINS.includes(callerEmail.toLowerCase());
+      if (!callerIsSuperAdmin) {
+        return json({ error: 'Only super admins can set admin roles' }, 403, origin);
+      }
+
+      const body = await request.json() as { uid?: string; isAdmin?: boolean };
+      const targetUid = body.uid;
+      const isAdminValue = body.isAdmin;
+
+      if (!targetUid || typeof isAdminValue !== 'boolean') {
+        return json({ error: 'uid (string) and isAdmin (boolean) are required' }, 400, origin);
+      }
+
+      // Use the service account to write isAdmin directly to Firestore
+      const adminToken = await getAdminAccessToken(env);
+      const url = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${targetUid}`;
+
+      const res = await fetch(`${url}?updateMask.fieldPaths=isAdmin`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fields: {
+            isAdmin: { booleanValue: isAdminValue },
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        return json({ error: 'Failed to set admin role: ' + err }, 500, origin);
+      }
+
+      return json({ success: true, uid: targetUid, isAdmin: isAdminValue }, 200, origin);
     }
 
     // Verify USDT transaction

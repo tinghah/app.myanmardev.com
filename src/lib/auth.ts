@@ -12,6 +12,7 @@ export interface UserProfile {
   githubUsername?: string;
   tokens: number;
   isAdmin?: boolean;
+  disabled?: boolean;
   createdAt: Timestamp;
   lastLoginAt: Timestamp;
 }
@@ -87,8 +88,8 @@ export async function createOrUpdateUserProfile(user: any): Promise<UserProfile>
       provider: provider,
     };
     
-    // DO NOT try to write isAdmin to Firestore during update, as security rules block it.
-    // Instead, we dynamically inject it in memory for super admins below.
+    // DO NOT write isAdmin here — Firestore rules block it from the client.
+    // The authStore detects missing isAdmin and syncs it via the Worker endpoint.
     if (user.displayName) updateData.displayName = user.displayName;
     if (user.photoURL) updateData.photoURL = user.photoURL;
     if (githubUsername) updateData.githubUsername = githubUsername;
@@ -96,7 +97,10 @@ export async function createOrUpdateUserProfile(user: any): Promise<UserProfile>
     await updateDoc(userRef, updateData);
 
     const profileToReturn = { ...existing, ...updateData };
-    if (isSuperAdmin(user.email)) {
+    // Only preserve isAdmin if it was already in Firestore.
+    // DO NOT inject it here — the authStore detects the mismatch
+    // and calls the Worker endpoint to sync isAdmin to Firestore.
+    if (existing.isAdmin) {
       profileToReturn.isAdmin = true;
     }
     return profileToReturn;
