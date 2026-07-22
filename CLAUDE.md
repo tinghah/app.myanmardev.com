@@ -55,7 +55,7 @@ Browser → Astro (static) → React (interactive)
 
 ## Environment Variables
 
-Required in GitHub Actions (Variables, not Secrets):
+Required in GitLab CI (Settings → CI/CD → Variables):
 - `PUBLIC_FIREBASE_*` — Firebase config (7 vars)
 - `PUBLIC_WORKER_API_URL` — Worker endpoint
 
