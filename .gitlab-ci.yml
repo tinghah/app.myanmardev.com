@@ -15,5 +15,5 @@ pages:
   artifacts:
     paths:
       - dist
-  rules:
+  rules: 
     - if: $CI_COMMIT_BRANCH == "main"
