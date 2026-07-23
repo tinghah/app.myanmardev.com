@@ -1,21 +1,51 @@
 image: node:22
 
-pages:
-  stage: deploy
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - node_modules/
-  before_script:
-    - corepack enable
-    - corepack prepare pnpm@latest --activate
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+before_script:
+  - corepack enable
+  - corepack prepare pnpm@latest --activate
+
+stages:
+  - build
+  - deploy
+
+# ── Stage 1: Build & Test ──────────────────────────────────
+build:
+  stage: build
   script:
     - pnpm install
     - pnpm build
   artifacts:
     paths:
       - dist
-    # GitLab Pages will publish the dist/ directory
+
+# ── Stage 2a: GitLab Pages (staging preview) ──────────────
+pages:
+  stage: deploy
+  script:
+    - echo "Publishing to GitLab Pages..."
+  artifacts:
+    paths:
+      - dist
   publish: dist
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+
+# ── Stage 2b: Firebase Hosting (production) ───────────────
+firebase-deploy:
+  stage: deploy
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@latest --activate
+    - npm install -g firebase-tools
+  script:
+    - pnpm install
+    - pnpm build
+    - firebase deploy --only hosting --token "$FIREBASE_TOKEN"
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
