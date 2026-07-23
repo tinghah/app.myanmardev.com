@@ -46,6 +46,6 @@ firebase-deploy:
   script:
     - pnpm install
     - pnpm build
-    - firebase deploy --only hosting --token "$FIREBASE_TOKEN"
+    - firebase deploy --only hosting --project ting-51902 --token "$FIREBASE_TOKEN"
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
