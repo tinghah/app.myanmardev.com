@@ -127,3 +127,4 @@ Always pull from `main` before starting work. Create a new branch and PR for eve
 This project is licensed under the [PolyForm Shield License 1.0.0](https://polyformproject.org/licenses/shield/1.0.0/).
 
 You may use this software for any non-commercial purpose. Commercial use requires a separate license agreement. See the [full license text](https://polyformproject.org/licenses/shield/1.0.0/) for details.
+
