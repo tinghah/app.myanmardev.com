@@ -4,7 +4,7 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
-    "site": "ting-51902",
+    "site": "app-myanmardev-com",
     "public": "dist",
     "ignore": [
       "firebase.json",
