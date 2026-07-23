@@ -6,7 +6,7 @@
 
 import { deductTokens } from './auth';
 import { createProductOrder } from './orders';
-import { getExchangeRate } from './exchange-rate';
+import { EXCHANGE_RATE, getExchangeRate } from './exchange-rate';
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -28,29 +28,28 @@ export interface PaymentResult {
   transactionId?: string;
 }
 
-// ─── Exchange rate (re-export for convenience) ───────────
-
-export const EXCHANGE_RATE = 4000; // 1 USD = 4,000 MMK (fixed)
+// ─── Exchange rate (imported from single source of truth) ───
+export { EXCHANGE_RATE } from './exchange-rate';
 
 /**
  * Format a price in both USD and MMK.
  */
 export function formatDualPrice(usdAmount: number): string {
-  return `$${usdAmount.toFixed(2)} / ${(usdAmount * EXCHANGE_RATE).toLocaleString()} MMK`;
+  return `$${usdAmount.toFixed(2)} / ${(usdAmount * getExchangeRate()).toLocaleString()} MMK`;
 }
 
 /**
  * Convert USD to MMK.
  */
 export function convertToMMK(usd: number): number {
-  return usd * EXCHANGE_RATE;
+  return usd * getExchangeRate();
 }
 
 /**
  * Convert MMK to USD.
  */
 export function convertToUSD(mmk: number): number {
-  return mmk / EXCHANGE_RATE;
+  return mmk / getExchangeRate();
 }
 
 // ─── Payment Router ──────────────────────────────────────

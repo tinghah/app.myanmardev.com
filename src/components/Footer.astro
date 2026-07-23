@@ -1,0 +1,225 @@
+---
+import { t, type Language } from '../i18n/utils';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <!-- Top: Logo + columns -->
+    <div class="footer-top">
+      <!-- Brand -->
+      <div class="footer-brand">
+        <a href={`/${lang}/`} class="footer-logo">
+          <img src="/images/logo/mmdev.svg" alt="MyanmarDev" class="footer-logo-img" />
+        </a>
+        <div class="footer-brand-text">
+          <span class="footer-brand-name">{t(lang, 'footer.built')}</span>
+          <p class="footer-tagline">Infrastructure for Myanmar developers — subdomains, websites, and more. Deployed instantly.</p>
+          <!-- GitHub link -->
+          <a href="https://github.com/vibecode-ting/myanmardev.com" target="_blank" rel="noopener noreferrer" class="footer-github">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+            GitHub
+          </a>
+        </div>
+      </div>
+
+      <!-- Links columns -->
+      <div class="footer-links-grid">
+        <div class="footer-col">
+          <div class="footer-col-title">Platform</div>
+          <a href={`/${lang}/#products`} class="footer-link">Products</a>
+          <a href={`/${lang}/#pricing`} class="footer-link">Pricing</a>
+          <a href={`/${lang}/#how`} class="footer-link">How It Works</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Account</div>
+          <a href={`/${lang}/auth/signin`} class="footer-link">Sign In</a>
+          <a href={`/${lang}/dashboard`} class="footer-link">Dashboard</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Language</div>
+          <a href={`/en/`} class="footer-link" hreflang="en">English</a>
+          <a href={`/my/`} class="footer-link" hreflang="my">မြန်မာ</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom: legal -->
+    <div class="footer-bottom">
+      <span class="footer-copy">{t(lang, 'footer.rights')} · Built with ❤️ for Myanmar Devs</span>
+      <div class="footer-legal">
+        <a href="#" class="footer-legal-link">Terms</a>
+        <a href="#" class="footer-legal-link">Privacy</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 0;
+  }
+
+  .footer-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 5vw, 4rem) clamp(1.25rem, 4vw, 3rem) clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  /* ─── Footer Top ─── */
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ─── Brand ─── */
+  .footer-brand {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    max-width: 400px;
+  }
+
+  .footer-logo {
+    display: flex;
+    flex-shrink: 0;
+    transition: opacity 0.15s ease;
+  }
+  .footer-logo:hover { opacity: 0.8; color: inherit; }
+
+  .footer-logo-img {
+    height: 100px;
+    width: auto;
+  }
+
+  .footer-brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .footer-brand-name {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--ink);
+  }
+
+  .footer-tagline {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+
+  .footer-github {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--muted);
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: all 0.15s ease;
+  }
+  .footer-github:hover {
+    color: var(--ink);
+    border-color: var(--border-accent);
+    background: var(--surface-2);
+  }
+
+  /* ─── Footer Links ─── */
+  .footer-links-grid {
+    display: flex;
+    gap: 3rem;
+  }
+
+  .footer-col { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .footer-col-title {
+    font-family: var(--mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+
+  .footer-link {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    transition: color 0.15s ease;
+  }
+  .footer-link:hover { color: var(--ink); }
+
+  /* ─── Footer Bottom ─── */
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+  }
+
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 0.625rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .footer-legal {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .footer-legal-link {
+    font-family: var(--mono);
+    font-size: 0.625rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    transition: color 0.15s ease;
+  }
+  .footer-legal-link:hover { color: var(--ink); }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    .footer-top {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .footer-brand { max-width: none; }
+    .footer-logo-img { height: 80px; }
+    .footer-links-grid { gap: 2rem; }
+  }
+
+  @media (max-width: 480px) {
+    .footer-brand {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .footer-brand-text { align-items: center; }
+    .footer-links-grid {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+  }
+</style>

@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Git Workflow
+
+**ALWAYS follow this workflow:**
+1. `git pull origin main` — get latest changes before starting
+2. `git checkout -b ting/feature-name` — create new branch from main
+3. Make changes, commit, push
+4. Create MR targeting `main`
+
+Never commit directly to `main`. Always create a new branch and MR.
+
 ## Project Overview
 
 **myanmardev.com** — Automated web services platform for Myanmar developers with token economy.

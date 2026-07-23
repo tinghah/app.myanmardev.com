@@ -34,3 +34,18 @@ pnpm-debug.log*
 # worker
 workers/.wrangler/
 worker/.wrangler/
+
+# generated
+src/dataconnect-generated/
+worker/src/dataconnect-generated/
+.fallback-generated/
+
+# firebase
+firebase-debug.log
+.firebase/
+
+# claude skills
+.claude/skills/
+
+# lock files (auto-generated)
+skills-lock.json

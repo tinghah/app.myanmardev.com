@@ -3,6 +3,7 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  runTransaction,
   arrayUnion,
   increment,
   Timestamp,
@@ -32,52 +33,55 @@ export interface RedeemResult {
 // ─── Redeem Functions ────────────────────────────────────
 
 /**
- * Redeem a code for tokens
+ * Redeem a code for tokens.
+ *
+ * Validation + code update + token addition run inside a single Firestore
+ * transaction so two concurrent requests cannot double-redeem the same code.
+ * The redemption history record is written *outside* the transaction because
+ * it is non-critical and a failure there should not roll back the tokens.
  */
 export async function redeemCode(userId: string, code: string): Promise<RedeemResult> {
   const db = getDB();
   const codeUpper = code.trim().toUpperCase();
 
-  // Get the redeem code document
-  const codeRef = doc(db, 'redeemCodes', codeUpper);
-  const codeSnap = await getDoc(codeRef);
-
-  if (!codeSnap.exists()) {
-    return { success: false, error: 'Invalid redeem code' };
-  }
-
-  const codeData = codeSnap.data() as RedeemCode;
-
-  // Check if code has expired
-  if (codeData.expiresAt && codeData.expiresAt.toMillis() < Date.now()) {
-    return { success: false, error: 'This code has expired' };
-  }
-
-  // Check if code has been fully used
-  if (codeData.currentUses >= codeData.maxUses) {
-    return { success: false, error: 'This code has been fully redeemed' };
-  }
-
-  // Check if user has already used this code
-  if (codeData.usedBy.includes(userId)) {
-    return { success: false, error: 'You have already redeemed this code' };
-  }
-
-  // Redeem the code (atomic operations)
   try {
-    // 1. Mark code as used by this user
-    await updateDoc(codeRef, {
-      currentUses: increment(1),
-      usedBy: arrayUnion(userId),
+    const tokenAmount = await runTransaction(db, async (transaction) => {
+      const codeRef = doc(db, 'redeemCodes', codeUpper);
+      const codeSnap = await transaction.get(codeRef);
+
+      if (!codeSnap.exists()) {
+        throw new Error('Invalid redeem code');
+      }
+
+      const codeData = codeSnap.data() as RedeemCode;
+
+      if (codeData.expiresAt && codeData.expiresAt.toMillis() < Date.now()) {
+        throw new Error('This code has expired');
+      }
+
+      if (codeData.currentUses >= codeData.maxUses) {
+        throw new Error('This code has been fully redeemed');
+      }
+
+      if (codeData.usedBy.includes(userId)) {
+        throw new Error('You have already redeemed this code');
+      }
+
+      // Atomic updates inside the transaction
+      transaction.update(codeRef, {
+        currentUses: increment(1),
+        usedBy: arrayUnion(userId),
+      });
+
+      const userRef = doc(db, 'users', userId);
+      transaction.update(userRef, {
+        tokens: increment(codeData.tokenAmount),
+      });
+
+      return codeData.tokenAmount;
     });
 
-    // 2. Add tokens to user balance
-    const userRef = doc(db, 'users', userId);
-    await updateDoc(userRef, {
-      tokens: increment(codeData.tokenAmount),
-    });
-
-    // 3. Record the redemption
+    // Record redemption history outside the transaction (non-critical)
     const redeemHistoryRef = doc(db, 'userRedeems', userId);
     const redeemHistorySnap = await getDoc(redeemHistoryRef);
 
@@ -85,7 +89,7 @@ export async function redeemCode(userId: string, code: string): Promise<RedeemRe
       await updateDoc(redeemHistoryRef, {
         redeems: arrayUnion({
           code: codeUpper,
-          tokens: codeData.tokenAmount,
+          tokens: tokenAmount,
           redeemedAt: Timestamp.now(),
         }),
       });
@@ -94,15 +98,26 @@ export async function redeemCode(userId: string, code: string): Promise<RedeemRe
         userId,
         redeems: [{
           code: codeUpper,
-          tokens: codeData.tokenAmount,
+          tokens: tokenAmount,
           redeemedAt: Timestamp.now(),
         }],
       });
     }
 
-    return { success: true, tokens: codeData.tokenAmount };
+    return { success: true, tokens: tokenAmount };
   } catch (err: any) {
     console.error('Redeem failed:', err);
+    // Surface the domain-specific validation messages to the caller
+    const message: string = err.message || 'Failed to redeem code. Please try again.';
+    const knownErrors = [
+      'Invalid redeem code',
+      'This code has expired',
+      'This code has been fully redeemed',
+      'You have already redeemed this code',
+    ];
+    if (knownErrors.includes(message)) {
+      return { success: false, error: message };
+    }
     return { success: false, error: 'Failed to redeem code. Please try again.' };
   }
 }

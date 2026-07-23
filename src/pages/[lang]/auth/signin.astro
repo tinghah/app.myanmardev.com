@@ -22,14 +22,7 @@ const { lang } = Astro.params as { lang: Language };
     <div class="signin-card">
       <!-- Logo -->
       <a href={`/${lang}/`} class="signin-logo">
-        <div class="logo-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" opacity="0.9"/>
-            <path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
-            <path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.8"/>
-          </svg>
-        </div>
-        <span><span class="brand-accent">myanmardev</span>.com</span>
+        <img src="/images/logo/mmdev.svg" alt="MyanmarDev" class="signin-logo-img" />
       </a>
 
       <!-- Header -->
@@ -143,33 +136,19 @@ const { lang } = Astro.params as { lang: Language };
 
   /* Logo */
   .signin-logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
+    display: flex;
+    justify-content: center;
     text-decoration: none;
     color: inherit;
     margin-bottom: 2rem;
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: 0.9375rem;
     transition: opacity 0.15s ease;
   }
   .signin-logo:hover { opacity: 0.8; }
 
-  .logo-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #000;
-    flex-shrink: 0;
-    box-shadow: 0 0 16px var(--glow);
+  .signin-logo-img {
+    height: 80px;
+    width: auto;
   }
-
-  .brand-accent { color: var(--accent); }
 
   /* Header */
   .signin-header {
