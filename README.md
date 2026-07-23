@@ -4,6 +4,8 @@ Automated web services platform for Myanmar developers. Claim a `.myanmardev.com
 
 **Live → [app.myanmardev.com](https://app.myanmardev.com)**
 
+[![Deploy Status](https://img.shields.io/badge/deploy-firebase-orange?logo=firebase)](https://gitlab.com/ting-htet-aung-hlaing/myanmardev.com/-/pipelines)
+
 ---
 
 ## Screenshots
