@@ -15,5 +15,7 @@ pages:
   artifacts:
     paths:
       - dist
-  rules: 
+    # GitLab Pages will publish the dist/ directory
+  publish: dist
+  rules:
     - if: $CI_COMMIT_BRANCH == "main"
