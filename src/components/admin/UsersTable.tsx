@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAllUsers, disableUser, enableUser, deleteUser, addUserTokens, setUserRole } from '../../lib/admin';
+import { getAllUsers, disableUser, enableUser, deleteUser, addUserTokens, removeUserTokens, setUserRole } from '../../lib/admin';
 import type { UserProfile } from '../../lib/auth';
 
 export default function UsersTable() {
@@ -8,6 +8,8 @@ export default function UsersTable() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [topupModal, setTopupModal] = useState<{ uid: string; email: string } | null>(null);
   const [topupAmount, setTopupAmount] = useState(10);
+  const [deductModal, setDeductModal] = useState<{ uid: string; email: string; currentTokens: number } | null>(null);
+  const [deductAmount, setDeductAmount] = useState(1);
 
   const fetchUsers = async () => {
     try {
@@ -75,6 +77,18 @@ export default function UsersTable() {
     finally { setActionLoading(null); }
   };
 
+  const handleDeduct = async (uid: string) => {
+    if (deductAmount < 1) return;
+    setActionLoading(uid);
+    try {
+      await removeUserTokens(uid, deductAmount);
+      setDeductModal(null);
+      setDeductAmount(1);
+      await fetchUsers();
+    } catch (e: any) { alert('Failed: ' + (e.message || e)); }
+    finally { setActionLoading(null); }
+  };
+
   if (loading) return <div style={{ color: 'var(--muted)', padding: '1rem' }}>Loading users...</div>;
 
   const formatDate = (timestamp: any) => {
@@ -131,15 +145,7 @@ export default function UsersTable() {
                     </td>
                     {/* TOKENS */}
                     <td style={{ padding: '0.75rem 1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <span style={{ fontFamily: 'var(--mono)', fontWeight: 600, color: 'var(--accent)', fontSize: '0.875rem' }}>{user.tokens}</span>
-                        {!user.isAdmin && (
-                          <button onClick={() => setTopupModal({ uid: user.uid, email: user.email || '' })}
-                            style={{ padding: '2px 6px', background: 'color-mix(in srgb, #22c55e 10%, transparent)', color: '#22c55e', border: '1px solid color-mix(in srgb, #22c55e 25%, transparent)', borderRadius: '4px', fontSize: '0.625rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--mono)' }}>
-                            + Topup
-                          </button>
-                        )}
-                      </div>
+                      <span style={{ fontFamily: 'var(--mono)', fontWeight: 600, color: 'var(--accent)', fontSize: '0.875rem' }}>{user.tokens}</span>
                     </td>
                     {/* STATUS */}
                     <td style={{ padding: '0.75rem 1rem' }}>
@@ -176,7 +182,7 @@ export default function UsersTable() {
                     {/* ACTIONS */}
                     <td style={{ padding: '0.75rem 1rem' }}>
                       {!userIsSuperAdmin && (
-                        <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                           {disabled ? (
                             <button onClick={() => handleEnable(user.uid)} disabled={actionLoading === user.uid}
                               style={{ padding: '3px 8px', background: 'color-mix(in srgb, #22c55e 10%, transparent)', color: '#22c55e', border: '1px solid #22c55e', borderRadius: '4px', fontSize: '0.6875rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--mono)' }}>
@@ -188,9 +194,17 @@ export default function UsersTable() {
                               Disable
                             </button>
                           )}
+                          <button onClick={() => setTopupModal({ uid: user.uid, email: user.email || '' })}
+                            style={{ padding: '3px 8px', background: 'color-mix(in srgb, #22c55e 10%, transparent)', color: '#22c55e', border: '1px solid #22c55e', borderRadius: '4px', fontSize: '0.6875rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--mono)' }}>
+                            + Token
+                          </button>
                           <button onClick={() => handleDelete(user.uid, user.email || '')} disabled={actionLoading === user.uid}
                             style={{ padding: '3px 8px', background: 'transparent', color: '#EA4335', border: '1px solid #EA4335', borderRadius: '4px', fontSize: '0.6875rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--mono)' }}>
                             Delete
+                          </button>
+                          <button onClick={() => setDeductModal({ uid: user.uid, email: user.email || '', currentTokens: user.tokens || 0 })}
+                            style={{ padding: '3px 8px', background: 'transparent', color: '#EA4335', border: '1px solid #EA4335', borderRadius: '4px', fontSize: '0.6875rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--mono)' }}>
+                            - Token
                           </button>
                         </div>
                       )}
@@ -218,7 +232,7 @@ export default function UsersTable() {
               <p style={{ fontFamily: 'var(--body)', fontSize: '0.8125rem', color: 'var(--muted)', margin: '0 0 1rem' }}>
                 Add tokens to {topupModal.email}
               </p>
-              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
                 {[5, 10, 25, 50, 100].map(amt => (
                   <button key={amt} onClick={() => setTopupAmount(amt)}
                     style={{ padding: '0.4rem 0.8rem', borderRadius: '6px', fontFamily: 'var(--mono)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
@@ -229,6 +243,11 @@ export default function UsersTable() {
                   </button>
                 ))}
               </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontFamily: 'var(--mono)', fontSize: '0.625rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>Custom Amount</label>
+                <input type="number" min="1" value={topupAmount} onChange={e => setTopupAmount(parseInt(e.target.value) || 0)}
+                  style={{ width: '100%', padding: '0.6rem 0.8rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--base)', color: 'var(--ink)', fontFamily: 'var(--mono)', fontSize: '0.875rem' }} />
+              </div>
               <div style={{ display: 'flex', gap: '0.625rem' }}>
                 <button onClick={() => setTopupModal(null)}
                   style={{ flex: 1, padding: '0.6rem', background: 'transparent', color: 'var(--ink)', border: '1px solid var(--border)', borderRadius: '6px', fontFamily: 'var(--mono)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
@@ -237,6 +256,51 @@ export default function UsersTable() {
                 <button onClick={() => handleTopup(topupModal.uid)} disabled={actionLoading === topupModal.uid || topupAmount < 1}
                   style={{ flex: 2, padding: '0.6rem', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '6px', fontFamily: 'var(--mono)', fontSize: '0.75rem', fontWeight: 600, cursor: actionLoading === topupModal.uid ? 'not-allowed' : 'pointer', opacity: actionLoading === topupModal.uid ? 0.7 : 1 }}>
                   {actionLoading === topupModal.uid ? 'Adding...' : `Add ${topupAmount} Tokens`}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Token Deduct Modal */}
+      {deductModal && typeof document !== 'undefined' && (() => {
+        return (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(8,9,10,0.5)', backdropFilter: 'blur(8px)' }}
+            onClick={() => setDeductModal(null)}>
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', padding: '2rem', maxWidth: '400px', width: '90%' }}
+              onClick={e => e.stopPropagation()}>
+              <h3 style={{ fontFamily: 'var(--display)', fontSize: '1.125rem', fontWeight: 700, color: 'var(--ink)', margin: '0 0 0.5rem' }}>Deduct Tokens</h3>
+              <p style={{ fontFamily: 'var(--body)', fontSize: '0.8125rem', color: 'var(--muted)', margin: '0 0 0.5rem' }}>
+                Remove tokens from {deductModal.email}
+              </p>
+              <p style={{ fontFamily: 'var(--mono)', fontSize: '0.75rem', color: 'var(--accent)', margin: '0 0 1rem' }}>
+                Current balance: {deductModal.currentTokens} tokens
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                {[1, 5, 10, 25, 50].map(amt => (
+                  <button key={amt} onClick={() => setDeductAmount(Math.min(amt, deductModal.currentTokens))}
+                    style={{ padding: '0.4rem 0.8rem', borderRadius: '6px', fontFamily: 'var(--mono)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
+                      background: deductAmount === amt ? '#EA4335' : 'var(--surface-2)',
+                      color: deductAmount === amt ? '#fff' : 'var(--ink)',
+                      border: `1px solid ${deductAmount === amt ? '#EA4335' : 'var(--border)'}` }}>
+                    {amt}
+                  </button>
+                ))}
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontFamily: 'var(--mono)', fontSize: '0.625rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>Custom Amount (max {deductModal.currentTokens})</label>
+                <input type="number" min="1" max={deductModal.currentTokens} value={deductAmount} onChange={e => setDeductAmount(Math.min(parseInt(e.target.value) || 0, deductModal.currentTokens))}
+                  style={{ width: '100%', padding: '0.6rem 0.8rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--base)', color: 'var(--ink)', fontFamily: 'var(--mono)', fontSize: '0.875rem' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '0.625rem' }}>
+                <button onClick={() => setDeductModal(null)}
+                  style={{ flex: 1, padding: '0.6rem', background: 'transparent', color: 'var(--ink)', border: '1px solid var(--border)', borderRadius: '6px', fontFamily: 'var(--mono)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
+                  Cancel
+                </button>
+                <button onClick={() => handleDeduct(deductModal.uid)} disabled={actionLoading === deductModal.uid || deductAmount < 1 || deductAmount > deductModal.currentTokens}
+                  style={{ flex: 2, padding: '0.6rem', background: '#EA4335', color: '#fff', border: 'none', borderRadius: '6px', fontFamily: 'var(--mono)', fontSize: '0.75rem', fontWeight: 600, cursor: actionLoading === deductModal.uid ? 'not-allowed' : 'pointer', opacity: actionLoading === deductModal.uid ? 0.7 : 1 }}>
+                  {actionLoading === deductModal.uid ? 'Removing...' : `Remove ${deductAmount} Tokens`}
                 </button>
               </div>
             </div>

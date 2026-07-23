@@ -91,6 +91,10 @@ export async function addUserTokens(uid: string, amount: number): Promise<void> 
   await workerAdminPost('/api/admin/topup-tokens', { uid, amount });
 }
 
+export async function removeUserTokens(uid: string, amount: number): Promise<void> {
+  await workerAdminPost('/api/admin/deduct-tokens', { uid, amount });
+}
+
 export async function setUserRole(uid: string, isAdmin: boolean): Promise<void> {
   await workerAdminPost('/api/admin/set-admin-role', { uid, isAdmin });
 }

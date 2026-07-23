@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useStore } from '@nanostores/react';
 import { $authState } from '../stores/authStore';
 import { createTokenOrder, TOKEN_PACKAGES } from '../lib/orders';
+import { getExchangeRate } from '../lib/exchange-rate';
 
 interface Props {
   isOpen: boolean;
@@ -142,7 +143,7 @@ export default function BuyTokensModal({ isOpen, onClose, onSuccess }: Props) {
 
   const renderMethodSelection = () => {
     const pkg = selectedPackage !== null ? TOKEN_PACKAGES[selectedPackage] : null;
-    const mmkPrice = pkg ? (pkg.priceUSD * 4000).toLocaleString() : 0;
+    const mmkPrice = pkg ? (pkg.priceUSD * getExchangeRate()).toLocaleString() : 0;
     const usdPrice = pkg ? pkg.priceUSD.toFixed(2) : 0;
 
     return (
@@ -171,17 +172,18 @@ export default function BuyTokensModal({ isOpen, onClose, onSuccess }: Props) {
 
         {paymentMethod && (
           <div style={{ padding: '1rem', background: 'var(--base)', border: '1px solid var(--border)', borderRadius: '8px', marginBottom: '1.5rem', fontFamily: 'var(--mono)', fontSize: '0.8125rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-            <div style={{ color: 'var(--ink)', fontWeight: 700, marginBottom: '0.5rem' }}>Transfer Instructions</div>
+            <div style={{ color: 'var(--ink)', fontWeight: 700, marginBottom: '0.25rem' }}>Transfer Instructions</div>
+            <div style={{ color: '#E8A33D', fontSize: '0.6875rem', marginBottom: '0.5rem' }}>Update payment details below in BuyTokensModal.tsx</div>
             {currency === 'USDT' && (
               <>
                 <p style={{ margin: '0 0 0.5rem' }}>Please send <strong>${usdPrice} USDT</strong> via {paymentMethod === 'binance' ? 'Binance Pay' : 'TRC-20'}.</p>
-                <code style={{ display: 'block', padding: '0.5rem', background: '#111', borderRadius: '4px', wordBreak: 'break-all' }}>{paymentMethod === 'binance' ? 'Binance ID: 123456789' : 'T-Wallet-Address-Here...'}</code>
+                <code style={{ display: 'block', padding: '0.5rem', background: '#111', borderRadius: '4px', wordBreak: 'break-all' }}>{paymentMethod === 'binance' ? 'Binance ID: [YOUR_BINANCE_ID]' : 'Wallet: [YOUR_TRC20_WALLET_ADDRESS]'}</code>
               </>
             )}
             {currency === 'MMK' && (
               <>
                 <p style={{ margin: '0 0 0.5rem' }}>Please transfer <strong>{mmkPrice} MMK</strong> to our {paymentMethod.toUpperCase()} account.</p>
-                <code style={{ display: 'block', padding: '0.5rem', background: '#111', borderRadius: '4px' }}>Acc Name: MyanmarDev<br/>Acc No: 09-123456789</code>
+                <code style={{ display: 'block', padding: '0.5rem', background: '#111', borderRadius: '4px' }}>Acc Name: [YOUR_ACCOUNT_NAME]<br/>Acc No: [YOUR_ACCOUNT_NUMBER]</code>
               </>
             )}
             <p style={{ marginTop: '0.5rem', marginBottom: 0, fontSize: '0.75rem', color: 'var(--accent)' }}>After transferring, click "Submit Order". An admin will verify the transaction and credit your tokens within 24 hours.</p>

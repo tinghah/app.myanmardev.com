@@ -25,6 +25,7 @@ export interface Product {
   category: string;
   icon: string;
   sortOrder: number;
+  duration?: number; // months, default 6
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 }
@@ -50,6 +51,7 @@ export async function getAllProducts(): Promise<Product[]> {
       category: data.category || '',
       icon: data.icon || data['icon    '] || '📦',
       sortOrder: data.sortOrder || 0,
+      duration: data.duration || 6,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     } as Product;
@@ -80,6 +82,7 @@ export async function getProduct(id: string): Promise<Product | null> {
       category: data.category || '',
       icon: data.icon || data['icon    '] || '📦',
       sortOrder: data.sortOrder || 0,
+      duration: data.duration || 6,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     } as Product;

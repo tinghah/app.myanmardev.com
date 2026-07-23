@@ -10,6 +10,7 @@ interface Props {
   onClose: () => void;
   productName: string;
   tokenCost: number;
+  priceUSD?: number;
   onPaymentComplete: () => void;
 }
 
@@ -18,6 +19,7 @@ export default function PaymentModal({
   onClose,
   productName,
   tokenCost,
+  priceUSD: priceUSDProp,
   onPaymentComplete,
 }: Props) {
   const { profile, refreshProfile } = useStore($authState);
@@ -29,9 +31,9 @@ export default function PaymentModal({
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
 
-  // Derive price from token cost (assume 1 token = $2.50 for display)
+  // Derive price from token cost (use provided priceUSD, fallback to tokenCost * 2.5 for backward compat)
   const exchangeRate = getExchangeRate();
-  const priceUSD = tokenCost * 2.5;
+  const priceUSD = priceUSDProp ?? tokenCost * 2.5;
   const priceMMK = Math.round(priceUSD * exchangeRate);
   const tokens = profile?.tokens ?? 0;
   const hasEnoughTokens = tokens >= tokenCost;

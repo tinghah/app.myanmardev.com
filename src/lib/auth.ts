@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, updateDoc, increment, Timestamp, deleteField } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, increment, Timestamp, deleteField, runTransaction } from 'firebase/firestore';
 import { getDB } from './firebase';
 
 // ─── User Profile Types ─────────────────────────────────
@@ -157,14 +157,31 @@ export async function updateTokenBalance(uid: string, amount: number): Promise<v
 
 /**
  * Deduct tokens from user balance (returns false if insufficient)
+ * Uses Firestore transaction to make check-and-deduct atomic (prevents TOCTOU race condition)
  */
 export async function deductTokens(uid: string, amount: number): Promise<boolean> {
-  const profile = await getUserProfile(uid);
-  if (!profile || profile.tokens < amount) {
+  const db = getDB();
+  const userRef = doc(db, 'users', uid);
+
+  try {
+    await runTransaction(db, async (transaction) => {
+      const userSnap = await transaction.get(userRef);
+      if (!userSnap.exists()) {
+        throw new Error('User not found');
+      }
+      const profile = userSnap.data() as UserProfile;
+      if (profile.tokens < amount) {
+        throw new Error('Insufficient tokens');
+      }
+      transaction.update(userRef, {
+        tokens: increment(-amount),
+      });
+    });
+    return true;
+  } catch (err) {
+    console.error('Token deduction failed:', err);
     return false;
   }
-  await updateTokenBalance(uid, -amount);
-  return true;
 }
 
 /**

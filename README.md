@@ -116,6 +116,10 @@ Right now, I am exploring the boundaries of AI-assisted software engineering (vi
 
 > ### **"Coding used to be chess. Now it is jazz."**
 
+## Contributing
+
+Always pull from `main` before starting work. Create a new branch and PR for every change.
+
 ## License
 
 This project is licensed under the [PolyForm Shield License 1.0.0](https://polyformproject.org/licenses/shield/1.0.0/).

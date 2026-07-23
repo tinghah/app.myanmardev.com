@@ -1,6 +1,7 @@
 ---
 import AuthButton from './AuthButton';
 import TokenBalance from './TokenBalance';
+import NotificationBell from './NotificationBell';
 import ThemeToggle from './ThemeToggle.astro';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 import { t, type Language } from '../i18n/utils';
@@ -16,16 +17,7 @@ const { lang } = Astro.props;
   <div class="header-inner">
     <!-- Logo -->
     <a href={`/${lang}/`} class="logo" aria-label="myanmardev.com home">
-      <div class="logo-mark">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" opacity="0.9"/>
-          <path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
-          <path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.8"/>
-        </svg>
-      </div>
-      <span class="logo-text">
-        <span class="logo-brand">myanmardev</span><span class="logo-tld">.com</span>
-      </span>
+      <img src="/images/logo/mmdev.svg" alt="MyanmarDev" style="height: 40px; width: auto;" />
     </a>
 
     <!-- Desktop Nav -->
@@ -44,6 +36,7 @@ const { lang } = Astro.props;
     <!-- Controls -->
     <div class="controls">
       <TokenBalance client:load />
+      <NotificationBell client:load />
       <LanguageSwitcher currentLang={lang} />
       <ThemeToggle />
       <AuthButton client:load />
@@ -105,35 +98,11 @@ const { lang } = Astro.props;
   .logo {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
     flex-shrink: 0;
     padding: 0.5rem 0;
     transition: opacity 0.15s ease;
   }
   .logo:hover { opacity: 0.85; color: inherit; }
-
-  .logo-mark {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-    color: #000;
-    flex-shrink: 0;
-    box-shadow: 0 0 16px var(--glow);
-  }
-
-  .logo-text {
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: 0.9375rem;
-    letter-spacing: -0.02em;
-    line-height: 1;
-  }
-  .logo-brand { color: var(--ink); }
-  .logo-tld   { color: var(--accent); }
 
   /* ─── Desktop Nav ─── */
   .desktop-nav {

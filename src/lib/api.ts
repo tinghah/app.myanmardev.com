@@ -25,7 +25,6 @@ interface ErrorResponse {
 }
 
 const API_URL = import.meta.env.PUBLIC_WORKER_API_URL || 'http://localhost:8787';
-const DEFAULT_DOMAIN = 'myanmardev.com';
 
 async function authHeaders(): Promise<HeadersInit> {
   const token = await getAuthInstance().currentUser?.getIdToken();
@@ -38,7 +37,15 @@ async function authHeaders(): Promise<HeadersInit> {
 
 /** Get list of available domains */
 export async function getDomains(): Promise<string[]> {
-  return [DEFAULT_DOMAIN];
+  try {
+    const API_URL = import.meta.env.PUBLIC_WORKER_API_URL || 'http://localhost:8787';
+    const res = await fetch(`${API_URL}/api/domains`);
+    if (!res.ok) return ['myanmardev.com'];
+    const data = await res.json();
+    return data.domains || ['myanmardev.com'];
+  } catch {
+    return ['myanmardev.com'];
+  }
 }
 
 /** Check if a subdomain is available */

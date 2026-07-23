@@ -14,6 +14,7 @@ const EMPTY_PRODUCT: Omit<Product, 'id' | 'createdAt' | 'updatedAt'> = {
   category: '',
   icon: '📦',
   sortOrder: 0,
+  duration: 6,
 };
 
 export default function ProductsManager() {
@@ -59,6 +60,7 @@ export default function ProductsManager() {
       category: p.category,
       icon: p.icon,
       sortOrder: p.sortOrder,
+      duration: p.duration ?? 6,
     });
     setFeaturesInput(p.features.join(', '));
     setShowModal(true);
@@ -132,8 +134,8 @@ export default function ProductsManager() {
                     <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontFamily: 'var(--mono)' }}>{p.slug}</div>
                   </td>
                   <td style={{ padding: '0.75rem 1rem', fontFamily: 'var(--mono)', fontSize: '0.875rem' }}>
-                    ${p.priceUSD.toFixed(2)}
-                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{p.priceMMK?.toLocaleString()} MMK</div>
+                    ${(p.tokenCost * 0.5).toFixed(2)}
+                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{(p.tokenCost * 2000).toLocaleString()} MMK</div>
                   </td>
                   <td style={{ padding: '0.75rem 1rem', fontFamily: 'var(--mono)', fontWeight: 600, color: 'var(--accent)' }}>
                     🪙 {p.tokenCost}
@@ -187,16 +189,19 @@ export default function ProductsManager() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontFamily: 'var(--mono)', fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>Price USD</label>
-                  <input type="number" step="0.01" value={form.priceUSD} onChange={(e) => setForm({ ...form, priceUSD: parseFloat(e.target.value) || 0 })} style={{ width: '100%', padding: '0.6rem 0.8rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--base)', color: 'var(--ink)', fontFamily: 'var(--mono)', fontSize: '0.875rem' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontFamily: 'var(--mono)', fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>Price MMK</label>
-                  <input type="number" value={form.priceMMK} onChange={(e) => setForm({ ...form, priceMMK: parseInt(e.target.value) || 0 })} style={{ width: '100%', padding: '0.6rem 0.8rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--base)', color: 'var(--ink)', fontFamily: 'var(--mono)', fontSize: '0.875rem' }} />
-                </div>
-                <div>
                   <label style={{ display: 'block', fontFamily: 'var(--mono)', fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>Token Cost</label>
-                  <input type="number" value={form.tokenCost} onChange={(e) => setForm({ ...form, tokenCost: parseInt(e.target.value) || 10 })} style={{ width: '100%', padding: '0.6rem 0.8rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--base)', color: 'var(--ink)', fontFamily: 'var(--mono)', fontSize: '0.875rem' }} />
+                  <input type="number" min="1" value={form.tokenCost} onChange={(e) => {
+                    const tokens = parseInt(e.target.value) || 10;
+                    setForm({ ...form, tokenCost: tokens, priceUSD: tokens * 0.5, priceMMK: tokens * 2000 });
+                  }} style={{ width: '100%', padding: '0.6rem 0.8rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--base)', color: 'var(--ink)', fontFamily: 'var(--mono)', fontSize: '0.875rem' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--mono)', fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>Price USD (auto)</label>
+                  <input type="text" value={`$${(form.tokenCost * 0.5).toFixed(2)}`} readOnly style={{ width: '100%', padding: '0.6rem 0.8rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--surface-2)', color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: '0.875rem', cursor: 'not-allowed' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--mono)', fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>Price MMK (auto)</label>
+                  <input type="text" value={`${(form.tokenCost * 2000).toLocaleString()} MMK`} readOnly style={{ width: '100%', padding: '0.6rem 0.8rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--surface-2)', color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: '0.875rem', cursor: 'not-allowed' }} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
@@ -214,6 +219,12 @@ export default function ProductsManager() {
                 <div>
                   <label style={{ display: 'block', fontFamily: 'var(--mono)', fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>Sort Order</label>
                   <input type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value) || 0 })} style={{ width: '100%', padding: '0.6rem 0.8rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--base)', color: 'var(--ink)', fontFamily: 'var(--mono)', fontSize: '0.875rem' }} />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--mono)', fontSize: '0.6875rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.3rem' }}>Duration (months)</label>
+                  <input type="number" min="1" value={form.duration ?? 6} onChange={(e) => setForm({ ...form, duration: parseInt(e.target.value) || 6 })} style={{ width: '100%', padding: '0.6rem 0.8rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--base)', color: 'var(--ink)', fontFamily: 'var(--mono)', fontSize: '0.875rem' }} />
                 </div>
               </div>
               <div>

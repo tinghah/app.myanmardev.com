@@ -3,13 +3,13 @@
  * Fixed rate: 1 USD = 4,000 MMK (as per project spec).
  */
 
-const DEFAULT_RATE = 4000; // 1 USD = 4,000 MMK (fixed)
+export const EXCHANGE_RATE = 4000; // 1 USD = 4,000 MMK (fixed)
 
 /**
  * Get the current exchange rate (fixed).
  */
 export function getExchangeRate(): number {
-  return DEFAULT_RATE;
+  return EXCHANGE_RATE;
 }
 
 /**
@@ -30,5 +30,5 @@ export function formatMMK(mmk: number): string {
  * Format a USD amount in both USD and MMK (e.g. "$4.00 / 16,000 MMK").
  */
 export function formatDual(usd: number): string {
-  return `${formatUSD(usd)} / ${formatMMK(usd * DEFAULT_RATE)}`;
+  return `${formatUSD(usd)} / ${formatMMK(usd * EXCHANGE_RATE)}`;
 }

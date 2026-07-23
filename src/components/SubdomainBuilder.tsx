@@ -3,6 +3,7 @@ import { checkSubdomain, createSubdomain, getDomains } from '../lib/api';
 import { useStore } from '@nanostores/react';
 import { $authState, refreshProfile, signInWithGoogle, signInWithGitHub } from '../stores/authStore';
 import { createProductOrder } from '../lib/orders';
+import { getProduct } from '../lib/products';
 import SignInModal from './SignInModal';
 import BuyTokensModal from './BuyTokensModal';
 
@@ -48,8 +49,6 @@ const PLATFORMS: PlatformOption[] = [
   { value: 'netlify', label: 'Netlify', description: 'Deploy on Netlify', cnameTarget: 'netlify.app', placeholder: 'your-site-name' },
   { value: 'custom', label: 'Custom CNAME', description: 'Enter any CNAME target', cnameTarget: '', placeholder: 'your-target.example.com' },
 ];
-
-const TOKEN_COST = 10;
 
 // ─── Step Indicator ─────────────────────────────────────
 
@@ -193,6 +192,7 @@ export default function SubdomainBuilder() {
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [showBuyTokensModal, setShowBuyTokensModal] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [tokenCost, setTokenCost] = useState(10);
 
   const selectedPlatform = PLATFORMS.find((p) => p.value === platform)!;
 
@@ -202,6 +202,17 @@ export default function SubdomainBuilder() {
       setDomains(d);
       if (d.length > 0 && !d.includes(domain)) setDomain(d[0]);
     });
+  }, []);
+
+  // Fetch token cost from Firestore product
+  useEffect(() => {
+    async function loadProduct() {
+      try {
+        const product = await getProduct('subdomain');
+        if (product?.tokenCost) setTokenCost(product.tokenCost);
+      } catch {}
+    }
+    loadProduct();
   }, []);
 
   const handleCheck = useCallback(async () => {
@@ -220,7 +231,7 @@ export default function SubdomainBuilder() {
     }
 
     // Check if user has enough tokens
-    if (!profile || profile.tokens < TOKEN_COST) {
+    if (!profile || profile.tokens < tokenCost) {
       setShowBuyTokensModal(true);
       return;
     }
@@ -252,7 +263,7 @@ export default function SubdomainBuilder() {
       return;
     }
 
-    if (profile.tokens < TOKEN_COST) {
+    if (profile.tokens < tokenCost) {
       setShowBuyTokensModal(true);
       return;
     }
@@ -273,7 +284,7 @@ export default function SubdomainBuilder() {
         profile.uid,
         profile.email,
         'subdomain',
-        TOKEN_COST,
+        tokenCost,
         {
           subdomain: subdomain.trim().toLowerCase(),
           domain,
@@ -353,7 +364,7 @@ export default function SubdomainBuilder() {
             fontSize: '0.75rem',
           }}>
             <span style={{ color: 'var(--muted)' }}>Cost per subdomain:</span>
-            <span style={{ color: 'var(--accent)', fontWeight: 700 }}>🪙 {TOKEN_COST} Token</span>
+            <span style={{ color: 'var(--accent)', fontWeight: 700 }}>🪙 {tokenCost} Token</span>
           </div>
 
           {/* Auth Status */}
@@ -372,7 +383,7 @@ export default function SubdomainBuilder() {
             }}>
               <span style={{ color: 'var(--muted)' }}>Your balance:</span>
               <span style={{
-                color: profile.tokens >= TOKEN_COST ? 'var(--accent)' : '#E8A33D',
+                color: profile.tokens >= tokenCost ? 'var(--accent)' : '#E8A33D',
                 fontWeight: 700,
               }}>
                 🪙 {profile.tokens} Tokens
@@ -549,7 +560,7 @@ export default function SubdomainBuilder() {
               marginBottom: '0.5rem',
             }}>
               <span style={{ color: 'var(--muted)' }}>Token Cost:</span>
-              <span style={{ color: 'var(--accent)', fontWeight: 700 }}>🪙 {TOKEN_COST} Token</span>
+              <span style={{ color: 'var(--accent)', fontWeight: 700 }}>🪙 {tokenCost} Token</span>
             </div>
             <div style={{
               display: 'flex',
@@ -560,7 +571,7 @@ export default function SubdomainBuilder() {
             }}>
               <span style={{ color: 'var(--muted)' }}>Your Balance:</span>
               <span style={{
-                color: profile && profile.tokens >= TOKEN_COST ? 'var(--accent)' : '#E8A33D',
+                color: profile && profile.tokens >= tokenCost ? 'var(--accent)' : '#E8A33D',
                 fontWeight: 700,
               }}>
                 🪙 {profile?.tokens || 0} Tokens
@@ -586,7 +597,7 @@ export default function SubdomainBuilder() {
                   </svg>
                   DEPLOYING
                 </>
-              ) : `DEPLOY SUBDOMAIN (🪙 ${TOKEN_COST} Token)`}
+              ) : `DEPLOY SUBDOMAIN (🪙 ${tokenCost} Token)`}
             </button>
           </div>
 

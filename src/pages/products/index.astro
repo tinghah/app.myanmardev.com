@@ -1,8 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
-import ProductGallery from '../../components/ProductGallery.astro';
-import ProductsComingSoon from '../../components/ProductsComingSoon.astro';
+import ProductsGrid from '../../components/ProductsGrid';
+import Footer from '../../components/Footer.astro';
 import { t, type Language } from '../../i18n/utils';
 
 const lang: Language = 'en';
@@ -29,26 +29,155 @@ const description = 'Browse all products and services from myanmardev.com. Subdo
         {t(lang, 'products.sub')}
       </p>
 
-      <!-- Product Gallery -->
-      <ProductGallery lang={lang} />
-
-      <!-- Coming Soon / Roadmap -->
-      <ProductsComingSoon />
+      <!-- Products Grid (Firestore-powered) -->
+      <div style="margin-top:2.5rem">
+        <ProductsGrid client:load />
+      </div>
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer style="border-top:1px solid var(--border);background:var(--surface);margin-top:4rem">
-    <div style="max-width:78rem;margin:0 auto;padding:clamp(2rem,4vw,3rem) clamp(1.25rem,4vw,3rem);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem">
-      <div>
-        <a href="/" style="font-family:var(--display);font-weight:700;font-size:1rem;letter-spacing:-.02em">
-          <span style="color:var(--accent)">myanmardev</span>.com
-        </a>
-      </div>
-      <div style="display:flex;align-items:center;gap:.5rem">
-        <span style="font-family:var(--mono);color:var(--muted);font-size:.625rem;letter-spacing:0.02em">&copy; {new Date().getFullYear()} {t(lang, 'footer.rights')}</span>
-        <span class="dot" style="width:5px;height:5px"></span>
-      </div>
-    </div>
-  </footer>
+  <Footer lang={lang} />
 </Layout>
+
+<style>
+  /* ─── Product Grid ─── */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+
+  /* ─── Product Card ─── */
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  }
+
+  .product-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  /* ─── Product Icon ─── */
+  .product-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+  }
+
+  .product-icon--live {
+    background: rgba(245,158,11,0.12);
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
+  }
+
+  .product-icon--soon {
+    background: var(--surface-2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  /* ─── Product Body ─── */
+  .product-body {
+    flex: 1;
+  }
+
+  .product-name {
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+  }
+
+  .product-desc {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ─── Feature List ─── */
+  .product-features {
+    list-style: none;
+    margin-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .product-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.8125rem;
+    color: var(--ink-2);
+    line-height: 1.4;
+  }
+
+  .feat-check {
+    font-family: var(--mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: #22c55e;
+    flex-shrink: 0;
+    width: 14px;
+    text-align: center;
+  }
+
+  .feat-check--muted {
+    color: var(--muted);
+  }
+
+  /* ─── Product Footer ─── */
+  .product-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .product-price-block {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+  }
+
+  .price-usd {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+
+  .price-per {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .price-mmk {
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+    width: 100%;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 1024px) {
+    .products-grid {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .products-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
