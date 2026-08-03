@@ -8,9 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 1. `git pull origin main` — get latest changes before starting
 2. `git checkout -b ting/feature-name` — create new branch from main
 3. Make changes, commit, push
-4. Create MR targeting `main`
+4. Create PR targeting `main`
 
-Never commit directly to `main`. Always create a new branch and MR.
+Never commit directly to `main`. Always create a new branch and PR.
 
 ## Project Overview
 
@@ -65,9 +65,11 @@ Browser → Astro (static) → React (interactive)
 
 ## Environment Variables
 
-Required in GitLab CI (Settings → CI/CD → Variables):
+Required in GitHub Secrets (Settings → Secrets and variables → Actions):
 - `PUBLIC_FIREBASE_*` — Firebase config (7 vars)
 - `PUBLIC_WORKER_API_URL` — Worker endpoint
+- `FIREBASE_SERVICE_ACCOUNT` — Firebase service account JSON
+- `CLOUDFLARE_API_TOKEN` — Cloudflare API token for worker deploy
 
 ## Admin Scripts
 
