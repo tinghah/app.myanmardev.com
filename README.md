@@ -1,4 +1,4 @@
-# myanmardev.com
+# app.myanmardev.com
 
 Automated web services platform for Myanmar developers. Claim a `.myanmardev.com` subdomain, deploy websites, and manage everything through a token-based economy — no credit card required, no human approval queues.
 
