@@ -12,45 +12,45 @@ Automated web services platform for Myanmar developers. Claim a `.myanmardev.com
 
 ### Landing Page (English + Myanmar)
 
-![Main Landing Page](screenshot/01_main.png)
+![Main Landing Page](screenshots/01_main.png)
 
-![Myanmar Language](screenshot/01_main_mm.png)
+![Myanmar Language](screenshots/01_main_mm.png)
 
 ### Terminal-Style Hero
 
-![Command Line Interface](screenshot/02_cmd.png)
+![Command Line Interface](screenshots/02_cmd.png)
 
 ### Product Showcase
 
-![What We Ship](screenshot/03_what_we_ship.png)
+![What We Ship](screenshots/03_what_we_ship.png)
 
 ### Subdomain Availability Check
 
-![Check Availability](screenshot/04_check.png)
+![Check Availability](screenshots/04_check.png)
 
 ### Available Domains
 
-![Available Domains](screenshot/05_avaliable_domains.png)
+![Available Domains](screenshots/05_avaliable_domains.png)
 
 ### Token Purchase & Redeem
 
-![Token Packages](screenshot/06_token_redeem_buy_pack.png)
+![Token Packages](screenshots/06_token_redeem_buy_pack.png)
 
 ### Product Roadmap
 
-![Roadmap](screenshot/07_roadmap.png)
+![Roadmap](screenshots/07_roadmap.png)
 
 ### Cloudflare Worker (DNS API)
 
-![Cloudflare Workers](screenshot/08_cloudflare_wokers.png)
+![Cloudflare Workers](screenshots/08_cloudflare_wokers.png)
 
 ### Domain Management
 
-![Domains](screenshot/09_DOMAINS.png)
+![Domains](screenshots/09_DOMAINS.png)
 
 ### DNS Records
 
-![DNS Records](screenshot/10_DNS_Records.png)
+![DNS Records](screenshots/10_DNS_Records.png)
 
 ---
 
