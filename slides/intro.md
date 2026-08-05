@@ -42,7 +42,7 @@ section.shot img { box-shadow:0 20px 50px rgba(0,0,0,.5); border-radius:8px; max
 
 ## Zero Config. True Serverless. Instant Production.
 
-Htet Aung Hlaing · [@vibecode-ting](https://github.com/vibecode-ting) · [app.myanmardev.com](https://app.myanmardev.com)
+Htet Aung Hlaing · [@tinghah](https://github.com/tinghah) · [app.myanmardev.com](https://app.myanmardev.com)
 
 ---
 
@@ -97,5 +97,5 @@ Built with Claude Code
 # Try it
 
 - **Live:** [app.myanmardev.com](https://app.myanmardev.com)
-- **Repo:** [github.com/vibecode-ting/myanmardev.com](https://github.com/vibecode-ting/myanmardev.com)
+- **Repo:** [github.com/tinghah/app.myanmardev.com](https://github.com/tinghah/app.myanmardev.com)
 - **License:** [PolyForm Shield 1.0.0](https://polyformproject.org/licenses/shield/1.0.0/)
