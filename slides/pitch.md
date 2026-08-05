@@ -84,10 +84,10 @@ For a Myanmar dev shipping their first project:
 # Done checklist
 <!-- 20s -->
 
-- [x] Repo public — `github.com/vibecode-ting/myanmardev.com`
+- [x] Repo public — `github.com/tinghah/app.myanmardev.com`
 - [x] MCP + skill + agent used — `.mcp.json`, `deploy-cloudflare` skill, `cf-worker-helper` agent
 - [x] 3 AI files committed and pushed
-- [x] report.md in team repo — `ch-3/vibecode-ting/report.md`
+- [x] report.md in team repo — `ch-3/tinghah/report.md`
 - [x] 3 GitHub stars ⭐⭐⭐
 - [x] `doctor.sh ch-3` all green
 - [x] Submitted in Discord `#ch-3`
