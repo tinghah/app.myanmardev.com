@@ -49,3 +49,6 @@ firebase-debug.log
 
 # lock files (auto-generated)
 skills-lock.json
+
+# local hosting management (Firebase CLI, node_modules, configs)
+hosting/
